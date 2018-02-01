@@ -1,0 +1,14 @@
+.App {
+  margin-top: 15px;
+}
+
+.App .navbar-brand {
+  font-weight: bold;
+}
+
+body {
+  /*background-image: url("satd.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.8;*/
+}
