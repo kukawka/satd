@@ -11,15 +11,38 @@ import {
 import "./Stories.css";
 
 export default class Stories extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {value: ''};
+
+        this.handleChange = this.handleChange.bind(this);
+        //this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+
+    handleChange(event) {
+        this.setState({value: event.target.value});
+       /* var updatedList = getTitles();
+        updatedList = updatedList.filter(function(item){
+            return item.toLowerCase().search(
+                event.target.value.toLowerCase()) !== -1;
+        });
+        this.setState({items: updatedList});
+        alert(updatedList.toString());*/
+    }
 
 
     render() {
         //remember to connect this to back-end
-        //const numbers = ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"];
         const stories = [
             {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
             {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
         ];
+
+        function getTitles(){
+            var titles = stories.map(stories => stories.title);
+            return titles;
+        }
 
         //function Library(props) {
             const listOfAll = stories.map((story) =>
@@ -44,12 +67,14 @@ export default class Stories extends Component {
 
 
         function filterList(event){
-            var updatedList = this.state.initialItems;
+            alert("hello");
+            var updatedList = listOfAll.title;
             updatedList = updatedList.filter(function(item){
                 return item.toLowerCase().search(
                     event.target.value.toLowerCase()) !== -1;
             });
             this.setState({items: updatedList});
+            alert(updatedList.toString());
         }
 
         function componentWillMount(){
@@ -97,7 +122,7 @@ export default class Stories extends Component {
                             <Col xs={12} md={7}>
 
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search for..." onChange={this.filterList}/>
+                                    <input type="text" class="form-control" placeholder="Search for..." value={this.state.value} onChange={this.handleChange}/>
                                     <span class="input-group-btn">
                                     <button class="btn btn-default" type="button">Go!</button>
                                   </span>
