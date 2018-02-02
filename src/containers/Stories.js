@@ -13,25 +13,12 @@ import "./Stories.css";
 export default class Stories extends Component {
     render() {
         //remember to connect this to back-end
-        var stories = [
-            {
-                name: 'Sam',
-                email: 'somewhere@gmail.com'
-            },
-
-            {
-                name: 'Ash',
-                email: 'something@gmail.com'
-            }
-        ] ;
-
-        for (var i = 0; i < 9; i++) {
-            // note: we add a key prop here to allow react to uniquely identify each
-            // element in this array. see: https://reactjs.org/docs/lists-and-keys.html
-            stories.push(<Col xs={12} md={4}>
+        const numbers = ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"];
+        const stories = numbers.map((number) =>
+            <Col xs={12} md={4}>
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Story's title</h3>
+                        <h3>{number}</h3>
                         <p>Created on</p>
                         <p>Patient's name</p>
                         <p><a href="#" class="btn btn-primary" role="button"><span
@@ -42,8 +29,8 @@ export default class Stories extends Component {
                         </p>
                     </div>
                 </div>
-            </Col>);
-        }
+            </Col>
+    );
 
         function filterList(event){
             var updatedList = this.state.initialItems;
