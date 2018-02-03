@@ -4,6 +4,7 @@ import Home from "./containers/Home";
 import Login from "./containers/Login";
 import Stories from "./containers/Stories";
 import AppliedRoute from "./components/AppliedRoute";
+import WriteAStory from "./containers/WriteAStory";
 
 export default ({ stateProps }) =>
     <Switch>
@@ -17,4 +18,5 @@ export default ({ stateProps }) =>
             ]
         }
         <AppliedRoute path="/stories" exact component={Stories} props={stateProps}/>
+        <AppliedRoute path="/writeastory" exact component={WriteAStory} props={stateProps}/>
     </Switch>;

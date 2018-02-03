@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Link} from "react-router-dom";
-import {Nav, Navbar, NavItem} from "react-bootstrap";
+import {Nav, Navbar, NavItem, NavDropdown} from "react-bootstrap";
 import "./App.css";
 import Routes from "./Routes";
 import RouteNavItem from "./components/RouteNavItem";
@@ -45,9 +45,12 @@ class App extends Component {
                             {this.state.isLoggedIn ? [
                                     /*if the user is logged in provide them with a full menu*/
                                 <RouteNavItem href="/">Home</RouteNavItem>,
-                                < RouteNavItem href = "/appointments"> Appointments </RouteNavItem>,
+                                <RouteNavItem href = "/appointments"> Appointments </RouteNavItem>,
                                 <RouteNavItem href="/patients">Patients</RouteNavItem>,
-                                <RouteNavItem href="/stories">Stories</RouteNavItem>
+                                <NavDropdown eventKey={3} title="Stories" id="basic-nav-dropdown">
+                                    <RouteNavItem href="/stories">Library</RouteNavItem>
+                                    <RouteNavItem href="/writeastory">Write A Story</RouteNavItem>
+                                </NavDropdown>
                             ]
                             :[]}
                         </Nav>
