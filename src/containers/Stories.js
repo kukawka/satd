@@ -8,12 +8,19 @@ import {
     DropdownButton,
     MenuItem
 } from "react-bootstrap";
+import StoryThumbnail from "../components/StoryThumbnail.js";
 import "./Stories.css";
 
 export default class Stories extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: ''};
+        //remember to connect this to back-end:
+        this.state = {
+            stories: [
+            {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
+            {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
+        ]
+        };
 
         this.handleChange = this.handleChange.bind(this);
         //this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,37 +40,13 @@ export default class Stories extends Component {
 
 
     render() {
-        //remember to connect this to back-end
-        const stories = [
-            {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
-            {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
-        ];
 
-        function getTitles(){
-            var titles = stories.map(stories => stories.title);
-            return titles;
-        }
-
-        //function Library(props) {
-            const listOfAll = stories.map((story) =>
+        //render all stories
+            const listOfAll = this.state.stories.map((story) =>
                         <Col xs={12} md={4}>
-                            <div class="thumbnail">
-                                <div class="caption">
-                                    <h3>{story.title}</h3>
-                                    <p>{story.date}</p>
-                                    <p>{story.patient}</p>
-                                    <p><a href="#" class="btn btn-primary" role="button"><span
-                                        class="glyphicon glyphicon-edit pull-left"
-                                        aria-hidden="true"></span>Edit</a> <a href="#" class="btn btn-default"
-                                                                              role="button"><span
-                                        class="glyphicon glyphicon-play pull-left" aria-hidden="true"></span>Preview</a>
-                                    </p>
-                                </div>
-                            </div>
+                            <StoryThumbnail story={story} />
                         </Col>
                     );
-            //return({listOfAll});
-        //}
 
 
         function filterList(event){

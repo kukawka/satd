@@ -1,16 +1,24 @@
 import React, {Component} from "react";
 import {Navbar, NavItem, Nav, Grid, Row, Col, Button, ButtonToolbar, Tooltip, OverlayTrigger, Panel, Image, Pagination, FormGroup, FormControl, ControlLabel} from "react-bootstrap";
+import PageThumbnail from "../components/PageThumbnail.js";
 import "./WriteAStory.css";
 
-export default class WriteAStory extends Component {
+export default class StoryEditor extends Component {
+    constructor(props) {
+        super(props);
+        //remember to connect this to back-end:
+        this.state = {
+            pages: [
+                {id: 1, title: 'Come to reception', text: '', imageID: 0, isWorrying: false},
+                {id: 2, title: 'Wait in reception', text: '', imageID: 0, isWorrying: false},
+                {id: 3, title: 'Sit in the chair', text: '', imageID: 0, isWorrying: false},
+                {id: 4, title: 'Put your hand up to rest', text: '', imageID: 0, isWorrying: false},
+                {id: 5, title: 'Go back to reception', text: '', imageID: 0, isWorrying: false}
+            ]
+        };
+    }
+
     render() {
-        const pages = [
-            {id: 1, title: 'Come to reception', text: '', imageID: 0, isWorrying: false},
-            {id: 2, title: 'Wait in reception', text: '', imageID: 0, isWorrying: false},
-            {id: 3, title: 'Sit in the chair', text: '', imageID: 0, isWorrying: false},
-            {id: 4, title: 'Put your hand up to rest', text: '', imageID: 0, isWorrying: false},
-            {id: 5, title: 'Go back to reception', text: '', imageID: 0, isWorrying: false}
-        ];
 
         var imgStyle = {
             minWidth: "128px",
@@ -48,14 +56,8 @@ export default class WriteAStory extends Component {
             </Nav>
         );
 
-        const existingPages = pages.map((page) =>
-            <div class="thumbnail">
-                <img src="checkup.jpg" alt="..." class="thumbnail-pic"/>
-                <div class="caption">
-                    <h5>{page.title}</h5>
-                    <p><a href="#" class="btn btn-info" role="button"> <span class="glyphicon glyphicon-zoom-in pull-left" aria-hidden="true"></span>View</a> <a href="#" class="btn btn-success" role="button"><span class="glyphicon glyphicon-plus pull-left" aria-hidden="true"></span>Add</a></p>
-                </div>
-            </div>
+        const existingPages = this.state.pages.map((page) =>
+            <PageThumbnail page={page}/>
         );
 
         let active = 7;
