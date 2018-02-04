@@ -19,23 +19,48 @@ export default class Stories extends Component {
             stories: [
             {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
             {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
-        ]
+        ],
+            initialStoriesSet: [
+                {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
+                {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
+            ],
+            searchedPhrase: ''
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleClick= this.handleClick.bind(this);
         //this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    getInitialState() {
+        return this.state.initialStoriesSet;
+    }
+
+
 
     handleChange(event) {
-        this.setState({value: event.target.value});
-       /* var updatedList = getTitles();
-        updatedList = updatedList.filter(function(item){
-            return item.toLowerCase().search(
-                event.target.value.toLowerCase()) !== -1;
+        var updatedList = this.getInitialState();
+        //var updatedList = this.state.stories;
+        //alert(updatedList.toString());
+        this.setState({
+            searchedPhrase: event.target.value
         });
-        this.setState({items: updatedList});
-        alert(updatedList.toString());*/
+        updatedList = updatedList.filter(function(item){
+            return item.title.toLowerCase().search(
+                event.target.value.toLowerCase()) !== -1 ||
+                item.patient.toLowerCase().search(
+                    event.target.value.toLowerCase())!==-1;
+        });
+        this.setState({stories: updatedList});
+    }
+
+    handleClick(){
+        //alert('clickeed');
+        this.setState({
+            searchedPhrase: ''
+        });
+        this.setState(
+            {stories: this.state.initialStoriesSet});
     }
 
 
@@ -49,16 +74,6 @@ export default class Stories extends Component {
                     );
 
 
-        function filterList(event){
-            alert("hello");
-            var updatedList = listOfAll.title;
-            updatedList = updatedList.filter(function(item){
-                return item.toLowerCase().search(
-                    event.target.value.toLowerCase()) !== -1;
-            });
-            this.setState({items: updatedList});
-            alert(updatedList.toString());
-        }
 
         function componentWillMount(){
             this.setState({items: this.state.initialItems})
@@ -103,11 +118,10 @@ export default class Stories extends Component {
                                 Search
                             </Col>
                             <Col xs={12} md={7}>
-
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search for..." value={this.state.value} onChange={this.handleChange}/>
+                                    <input id="searchbox" type="text" class="form-control" value={this.state.searchedPhrase} placeholder="Search for..." onChange={this.handleChange}/>
                                     <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button">Go!</button>
+                                    <Button onClick={this.handleClick}>Cancel</Button>
                                   </span>
                                 </div>
 
