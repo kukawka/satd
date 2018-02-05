@@ -9,14 +9,14 @@ import WriteAStory from "./containers/WriteAStory";
 export default ({ stateProps }) =>
     <Switch>
         {!stateProps.isLoggedIn? [
-        <AppliedRoute path="/" exact component={Login} props={stateProps}/>,
-                <AppliedRoute path="/login" exact component={Login} props={stateProps}/>
+        <AppliedRoute key={0} path="/" exact component={Login} props={stateProps}/>,
+                <AppliedRoute key={1} path="/login" exact component={Login} props={stateProps}/>
         ]
             :[
-                <AppliedRoute path="/" exact component={Home} props={stateProps}/>,
-                <AppliedRoute path="/login" exact component={Home} props={stateProps}/>
+                <AppliedRoute key={2} path="/" exact component={Home} props={stateProps}/>,
+                <AppliedRoute key={3} path="/login" exact component={Home} props={stateProps}/>
             ]
         }
-        <AppliedRoute path="/stories" exact component={Stories} props={stateProps}/>
-        <AppliedRoute path="/writeastory" exact component={WriteAStory} props={stateProps}/>
+        <AppliedRoute key={4} path="/stories" exact component={Stories} props={stateProps}/>
+        <AppliedRoute key={5} path="/writeastory" exact component={WriteAStory} props={stateProps}/>
     </Switch>;

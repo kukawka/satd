@@ -6,12 +6,14 @@ import {
     Button,
     ButtonToolbar,
     DropdownButton,
-    MenuItem
+    MenuItem,
+    Well,
+    Glyphicon
 } from "react-bootstrap";
 import StoryThumbnail from "../components/StoryThumbnail.js";
 import "./Stories.css";
 
-export default class Stories extends Component {
+export default class StoryLibrary extends Component {
     constructor(props) {
         super(props);
         //remember to connect this to back-end:
@@ -27,9 +29,9 @@ export default class Stories extends Component {
             searchedPhrase: ''
         };
 
+        //bind methods for the searchbox
         this.handleChange = this.handleChange.bind(this);
         this.handleClick= this.handleClick.bind(this);
-        //this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     getInitialState() {
@@ -40,17 +42,17 @@ export default class Stories extends Component {
 
     handleChange(event) {
         var updatedList = this.getInitialState();
-        //var updatedList = this.state.stories;
-        //alert(updatedList.toString());
         this.setState({
             searchedPhrase: event.target.value
         });
+        //alert(Object.keys(this.state.stories)) ;
         updatedList = updatedList.filter(function(item){
             return item.title.toLowerCase().search(
                 event.target.value.toLowerCase()) !== -1 ||
                 item.patient.toLowerCase().search(
                     event.target.value.toLowerCase())!==-1;
         });
+
         this.setState({stories: updatedList});
     }
 
@@ -68,37 +70,29 @@ export default class Stories extends Component {
 
         //render all stories
             const listOfAll = this.state.stories.map((story) =>
-                        <Col xs={12} md={4}>
+                        <Col key={story.id} xs={12} md={4}>
                             <StoryThumbnail story={story} />
                         </Col>
                     );
 
-
-
-        function componentWillMount(){
-            this.setState({items: this.state.initialItems})
-        }
-
-
         return (
-
-            <div className="Stories">
                 <Grid>
-                    <div class="well">
+                    <Well>
                         <Row className="show-grid">
                             <Col xs={12} md={10}>
+                                <Glyphicon glyph="star"/>
                             </Col>
                             <Col xs={12} md={2}>
-                                <ButtonToolbar class="pull-right">
+                                <ButtonToolbar className="pull-right">
                                     <Button bsStyle="success" bsSize="large" block>
-                                        <span class="glyphicon glyphicon-pencil pull-left" aria-hidden="true"></span>
+                                        <Glyphicon glyph="pencil"/>
                                         New Story
                                     </Button>
                                 </ButtonToolbar>
                             </Col>
                         </Row>
-                    </div>
-                    <div class="well" id="toolbar">
+                    </Well>
+                    <Well id="toolbar">
                         <Row>
                             <Col xs={12} md={1}>
                                 Sort by
@@ -118,16 +112,16 @@ export default class Stories extends Component {
                                 Search
                             </Col>
                             <Col xs={12} md={7}>
-                                <div class="input-group">
-                                    <input id="searchbox" type="text" class="form-control" value={this.state.searchedPhrase} placeholder="Search for..." onChange={this.handleChange}/>
-                                    <span class="input-group-btn">
+                                <div className="input-group">
+                                    <input autoCorrect="off" autoComplete="off" id="searchbox" value={this.state.searchedPhrase}  onChange={this.handleChange} type="text" className="form-control"
+                                           placeholder="Search for..."/>
+                                    <span className="input-group-btn">
                                     <Button onClick={this.handleClick}>Cancel</Button>
                                   </span>
                                 </div>
-
                             </Col>
                         </Row>
-                    </div>
+                    </Well>
                     <Row>
                         <Col xs={12} md={1}>
                         </Col>
@@ -138,7 +132,6 @@ export default class Stories extends Component {
                         </Col>
                     </Row>
                 </Grid>
-            </div>
         );
     }
 }

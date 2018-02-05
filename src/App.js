@@ -9,6 +9,9 @@ class App extends Component {
     constructor(props) {
         super(props);
 
+        this.userHasLoggedIn=this.userHasLoggedIn.bind(this);
+        this.handleLogout=this.handleLogout.bind(this);
+
         this.state = {
             isLoggedIn: true,
             isAuthenticating:true
@@ -44,12 +47,12 @@ class App extends Component {
                         <Nav pullLeft>
                             {this.state.isLoggedIn ? [
                                     /*if the user is logged in provide them with a full menu*/
-                                <RouteNavItem href="/">Home</RouteNavItem>,
-                                <RouteNavItem href = "/appointments"> Appointments </RouteNavItem>,
-                                <RouteNavItem href="/patients">Patients</RouteNavItem>,
-                                <NavDropdown eventKey={3} title="Stories" id="basic-nav-dropdown">
-                                    <RouteNavItem href="/stories">Library</RouteNavItem>
-                                    <RouteNavItem href="/writeastory">Write A Story</RouteNavItem>
+                                <RouteNavItem key={1} href="/">Home</RouteNavItem>,
+                                <RouteNavItem key={2} href = "/appointments"> Appointments </RouteNavItem>,
+                                <RouteNavItem key={3} href="/patients">Patients</RouteNavItem>,
+                                <NavDropdown key={4} eventKey={3} title="Stories" id="basic-nav-dropdown">
+                                    <RouteNavItem key={5} href="/stories">Library</RouteNavItem>
+                                    <RouteNavItem key={6} href="/writeastory">Write A Story</RouteNavItem>
                                 </NavDropdown>
                             ]
                             :[]}
@@ -58,10 +61,10 @@ class App extends Component {
                         {this.state.isLoggedIn
                             ? <NavItem onClick={this.handleLogout}>Logout</NavItem>
                             : [
-                                <RouteNavItem key={1} href="/signup">
+                                <RouteNavItem key={7} href="/signup">
                                     Signup
                                 </RouteNavItem>,
-                                <RouteNavItem key={2} href="/login">
+                                <RouteNavItem key={8} href="/login">
                                     Login
                                 </RouteNavItem>
                             ]}
