@@ -5,6 +5,7 @@ import App from "./App";
 import 'bootstrap/dist/css/bootstrap.css';
 import registerServiceWorker from "./registerServiceWorker";
 import "./index.css";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 ReactDOM.render(
     <Router key={0}>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
-import { NavItem } from "react-bootstrap";
+import  NavItem  from "./NavItem";
 
 //automatically set active link in the navbar
 export default props =>
@@ -11,7 +11,7 @@ export default props =>
             <NavItem
                 onClick={e => history.push(e.currentTarget.getAttribute("href"))}
                 {...props}
-                active={match ? true : false}
+                active={match ? true : false }
             >
                 {props.children}
             </NavItem>}
