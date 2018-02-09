@@ -2,6 +2,7 @@ import React, {Component} from "react";
 ///import {Nav, Navbar, NavItem, NavDropdown} from "react-bootstrap";
 import "./App.css";
 import RouteNavItem from "./components/RouteNavItem";
+import NavDropdown from "./components/NavDropdown";
 import Routes from "./Routes";
 
 class App extends Component {
@@ -18,10 +19,12 @@ class App extends Component {
     }
 
     userHasLoggedIn = logged => {
+        //alert(logged);
         this.setState({ isLoggedIn: logged });
     }
 
     handleLogout = event => {
+        //alert("logged out");
         this.userHasLoggedIn(false);
     }
 
@@ -48,12 +51,15 @@ class App extends Component {
                                     <RouteNavItem href="/" name="Home">Home</RouteNavItem>,
                                     <RouteNavItem href = "/appointments" name="Appointments"> Appointments </RouteNavItem>,
                                     <RouteNavItem href="/patients" name="Patients">Patients</RouteNavItem>,
-                                        <RouteNavItem href="/stories" name="Library">Library</RouteNavItem>,
-                                        <RouteNavItem href="/writeastory" name="Write A Story">Write A Story</RouteNavItem>
+
+                                <NavDropdown name="Stories">
+                                        <RouteNavItem className="dropdown-item" href="/stories" name="Library">Library</RouteNavItem>
+                                        <RouteNavItem className="dropdown-item" href="/writeastory" name="Write A Story">Write A Story</RouteNavItem>
+                                </NavDropdown>
                                 ]
                                 :[]}
                             {this.state.isLoggedIn
-                                ? <RouteNavItem href="/logout" onClick={this.handleLogout} name="Logout">Logout</RouteNavItem>
+                                ? <li className="nav-item"> <a className="nav-link" href="/" onClick={this.handleLogout} name="Logout">Logout </a></li>
                                 : [
                                     <RouteNavItem key={1} href="/signup" name="Signup">
                                         Signup
