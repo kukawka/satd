@@ -1,17 +1,17 @@
 import React from "react";
+import Button from "./Button";
 
 export default class PageThumbnail extends React.Component {
     render() {
         return (
-            <div class="thumbnail">
-                <img src="../containers/checkup.jpg" alt="..." class="thumbnail-pic"/>
-                <div class="caption">
-                    <h5>{this.props.page.title}</h5>
-                    <p><a href="#" class="btn btn-info" role="button"> <span
-                        class="glyphicon glyphicon-zoom-in pull-left" aria-hidden="true"></span>View</a> <a href="#"
-                                                                                                            class="btn btn-success"
-                                                                                                            role="button"><span
-                        class="glyphicon glyphicon-plus pull-left" aria-hidden="true"></span>Add</a></p>
+            <div className="card">
+                <img src="../containers/checkup.jpg" alt="..." className="card-img-top"/>
+                <div className="card-body">
+                    <h5 className="card-title">{this.props.page.title}</h5>
+                    <p className="card-text">
+                        <Button bsStyle="outline-primary"> View</Button>
+                        <Button bsStyle="outline-success"> Add </Button>
+                    </p>
                 </div>
             </div>
         );
