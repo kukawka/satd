@@ -4,7 +4,7 @@ import { Switch } from "react-router-dom";
 import Login from "./containers/Login";*/
 import Stories from "./containers/Stories";
 import AppliedRoute from "./components/AppliedRoute";
-//import WriteAStory from "./containers/WriteAStory";
+import WriteAStory from "./containers/WriteAStory";
 /*   {!stateProps.isLoggedIn? [
         <AppliedRoute key={0} path="/" exact component={Login} props={stateProps}/>,
                 <AppliedRoute key={1} path="/login" exact component={Login} props={stateProps}/>
@@ -19,4 +19,5 @@ import AppliedRoute from "./components/AppliedRoute";
 export default ({ stateProps }) =>
     <Switch>
         <AppliedRoute key={4} path="/stories" exact component={Stories} props={stateProps}/>
+        <AppliedRoute key={5} path="/writeastory" exact component={WriteAStory} props={stateProps}/>
     </Switch>;

@@ -76,12 +76,10 @@ export default class StoryLibrary extends Component {
                     <Well>
                         <Row className="show-grid">
                             <Col xs={12} md={10}>
-                                <Glyphicon glyph="star"/>
                             </Col>
                             <Col xs={12} md={2}>
                                     <Button bsStyle="success" bsSize="large">
-                                        <Glyphicon glyph="pencil"/>
-                                        New Story
+                                        <Glyphicon glyph="pencil"> New Story</Glyphicon>
                                     </Button>
                             </Col>
                         </Row>

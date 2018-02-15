@@ -1,0 +1,15 @@
+#centeredNav #centeredItem{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.thumbnail-pic{
+    max-width: 100px;
+}
+
+.fixed-panel {
+    min-height: 10;
+    max-height: 10;
+    overflow-y: scroll;
+}

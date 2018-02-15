@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "./Button";
+import Glyphicon from "./Glyphicon";
 
 export default class StoryThumbnail extends React.Component {
     render() {
@@ -11,8 +12,8 @@ export default class StoryThumbnail extends React.Component {
                 <p>{this.props.story.date}</p>
                 <p>{this.props.story.patient}</p>
         <p className="card-text">
-            <Button bsStyle="outline-primary"> View</Button>
-            <Button bsStyle="outline-success"> Add </Button>
+            <Button bsStyle="outline-primary"><Glyphicon glyph="view"> View</Glyphicon></Button>
+            <Button bsStyle="outline-success"><Glyphicon glyph="edit"> Edit</Glyphicon></Button>
         </p>
     </div>
     </div>
