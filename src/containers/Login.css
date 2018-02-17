@@ -1,0 +1,25 @@
+@media all and (min-width: 480px) {
+    .Login {
+        /*padding: 60px 0;
+        background-color: #999999;*/
+    }
+
+    .Login form {
+        margin: 0 auto;
+        max-width: 320px;
+    }
+
+    .Login .landingCont {
+        padding: 5% 0;
+        text-align: center;
+    }
+
+    .Login .landingCont h1 {
+        font-family: "Open Sans", sans-serif;
+        font-weight: 600;
+    }
+
+    .Login .landingCont p {
+        color: #999;
+    }
+}
