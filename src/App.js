@@ -39,7 +39,7 @@ class App extends Component {
 
         return (
             <div className="App container">
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
                     <a className="navbar-brand" href="#">SatD</a>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
@@ -51,24 +51,20 @@ class App extends Component {
                                     <RouteNavItem href="/" name="Home">Home</RouteNavItem>,
                                     <RouteNavItem href = "/appointments" name="Appointments"> Appointments </RouteNavItem>,
                                     <RouteNavItem href="/patients" name="Patients">Patients</RouteNavItem>,
-
-                                <NavDropdown name="Stories">
+                                    <RouteNavItem className="dropdown-item" href="/writeastory" name="Story Editor">Write A Story</RouteNavItem>,
                                         <RouteNavItem className="dropdown-item" href="/stories" name="Library">Library</RouteNavItem>
-                                        <RouteNavItem className="dropdown-item" href="/writeastory" name="Write A Story">Write A Story</RouteNavItem>
-                                </NavDropdown>
+
                                 ]
                                 :[]}
-                            {this.state.isLoggedIn
-                                ? <li className="nav-item"> <a className="nav-link" href="/" onClick={this.handleLogout} name="Logout">Logout </a></li>
-                                : [
-                                    <RouteNavItem key={1} href="/signup" name="Signup">
-                                        Signup
-                                    </RouteNavItem>,
-                                    <RouteNavItem key={2} href="/login" name="Login">
-                                        Login
-                                    </RouteNavItem>
-                                ]}
                         </ul>
+                        <div>
+                            {this.state.isLoggedIn
+                                ?
+                                    <button class="btn btn-outline-secondary" onClick={this.handleLogout} type="button">Log out</button>
+                                : [
+                                    <button class="btn btn-outline-primary" type="button">Sign up</button>
+                                ]}
+                        </div>
                     </div>
                 </nav>
 

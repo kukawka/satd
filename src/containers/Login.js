@@ -108,7 +108,7 @@ export default class Login extends Component {
                     </div>
                 </div>
                 <div style={centeredStyle}>
-                <button class="btn btn-primary" type="submit">Submit form</button>
+                <button class="btn btn-primary" type="submit"></button>
                 </div>
             </form>
                         </Well>
