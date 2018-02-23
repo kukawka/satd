@@ -14,7 +14,7 @@ export default class Toda extends Component {
         super(props);
         this.state = {
             latestTODA: [
-                {id: 1, date: '20.12.2017', patientID: 13, versionNo: 5, current: true},
+                {id: 1, date: '20.12.2017', patientID: 13, versionNo: 5, current: true, notes:"Write your notes here.."},
             ],
             actions: [
                 {id: 1, name: "Sitting in Dental Chair Upright", value: 2},
@@ -23,29 +23,32 @@ export default class Toda extends Component {
             ],
             editingDisabled: true,
             showModal: false,
-            showPortal: false
+            showPortal: false,
+            noteRequired: false
         }
         this.handleChange = this.handleChange.bind(this);
         this.toggleEditing = this.toggleEditing.bind(this);
-        this.handleShow = this.handleShow.bind(this);
-        this.handleHide = this.handleHide.bind(this);
-    }
-
-    handleShow() {
-        this.setState({showModal: true});
-    }
-
-    handleHide() {
-        this.setState({showModal: false});
+        this.handleClose = this.handleClose.bind(this);
     }
 
     handleChange(e) {
         //alert(e.currentTarget.parentElement.dataset.id);
         //alert(e.currentTarget.dataset.id);
 
-        if (e.currentTarget.dataset.id === 0) {
-
+        if (e.currentTarget.dataset.id === '0') {
+            this.setState({
+                showPortal: !this.state.showPortal,
+                noteRequired: !this.state.noteRequired
+            });
         }
+
+    }
+
+    handleClose(){
+        this.setState({
+            showPortal: false
+        });
+        this.textInput.focus() ;
     }
 
     toggleEditing() {
@@ -117,33 +120,26 @@ export default class Toda extends Component {
             </button>
         );
 
+        const notesForm = (
+            <form>
+                <div className="form-group">
+                    <textarea className="form-control" id="exampleFormControlTextarea1"
+                              rows="20" value={this.state.latestTODA[0].notes}
+                              ref={(input) => { this.textInput = input; }} ></textarea>
+                </div>
+            </form>
+        );
+
         return (
 
             <Container>
-
-                <div className="sidebar">
-
-                    <button
-                        className="btn show-portal"
-                        onClick={() =>
-                            this.setState({
-                                showPortal: !this.state.showPortal
-                            })}
-                    >
-                        Show Portal
-                    </button>
-
-                    <Portal
-                        open={this.state.showPortal}
-                        header="My Portal Modal"
-                        onClose={() =>
-                            this.setState({
-                                showPortal: false
-                            })}
-                    >
-                        <h1>Some Portal Content</h1>
-                    </Portal>
-                </div>
+                <Portal
+                    open={this.state.showPortal}
+                    header="A note required"
+                    onClose={this.handleClose}
+                >
+                    <p>Please add a note to explain the low tolerance. </p>
+                </Portal>
                 <Row>
                     <Col xs={12} md={4}>
                         <div className="card">
@@ -151,7 +147,7 @@ export default class Toda extends Component {
                                 Notes
                             </div>
                             <div className="card-body">
-                                Notes go here
+                                {notesForm}
                             </div>
                         </div>
                     </Col>

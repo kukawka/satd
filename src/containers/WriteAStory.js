@@ -52,8 +52,18 @@ export default class StoryEditor extends Component {
 
     render() {
 
+        //styles
         var imgStyle = {
             minWidth: "128px",
+        };
+
+        var scrolling= {
+            overflowY: "scroll",
+            //height: 500
+        };
+
+        var marginAtTop={
+            marginTop: 10
         };
 
         /*const tooltip = (
@@ -126,23 +136,23 @@ export default class StoryEditor extends Component {
         const storyPagination = (
             <nav aria-label="Page navigation example">
                 <ul className="pagination pagination-sm">
-                    <li className="page-item"><a class="page-link" href="#">Previous</a></li>
+                    <li className="page-item"><a className="page-link" href="#">Previous</a></li>
                     {items}
-                    <li className="page-item"><a class="page-link" href="#">Next</a></li>
+                    <li className="page-item"><a className="page-link" href="#">Next</a></li>
                 </ul>
             </nav>
         );
 
         var imagesTab = (
-            <div className="card-body">
+            <div className="card-body" style={scrolling}>
                 {imagesNav}
             </div>
         );
 
         var pagesTab = (
-            <div id="pagesTab" className="card-body">
+            <div id="pagesTab" className="card-body" style={scrolling}>
                 {pagesNav}
-                {this.state.selectedPagesItem == 3 && existingPages}
+                {this.state.selectedPagesItem === 3 && existingPages}
             </div>
         );
 
@@ -161,7 +171,7 @@ export default class StoryEditor extends Component {
                 </Well>
                 <Row>
                     <Col xs={12} md={4}>
-                        <div className="card">
+                        <div className="card" style={marginAtTop}>
                             <div className="card-header">
                                 {parentNav}
                             </div>
@@ -173,9 +183,9 @@ export default class StoryEditor extends Component {
                         </div>
                     </Col>
                     <Col xs={12} md={8}>
-                        <div className="card">
+                        <div className="card" style={marginAtTop}>
                             <div className="card-header">Page Editor</div>
-                            <div className="card-body" key={1}>
+                            <div className="card-body" style={scrolling}>
                                 <img src={require('../images/checkup.jpg')} alt="No pic.." className="card-img-top"/>
                                 <form>
                                     <div className="form-group">
