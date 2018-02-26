@@ -59,7 +59,7 @@ export default class StoryEditor extends Component {
 
         var scrolling= {
             overflowY: "scroll",
-            //height: 500
+            height: 650
         };
 
         var marginAtTop={
@@ -164,8 +164,8 @@ export default class StoryEditor extends Component {
                         <Col xs={12} md={10}>
                         </Col>
                         <Col xs={12} md={2}>
-                            <Button block href="#" bsStyle="info" bsSize="large"><Glyphicon glyph="charts"> View
-                                TODA</Glyphicon></Button>
+                            <a class="btn btn-large btn-info" href="/toda" block><Glyphicon glyph="charts">View
+                                TODA</Glyphicon></a>
                         </Col>
                     </Row>
                 </Well>

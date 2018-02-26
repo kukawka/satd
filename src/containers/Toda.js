@@ -56,11 +56,6 @@ export default class Toda extends Component {
             {editingDisabled: !this.state.editingDisabled});
     }
 
-
-    isClickedAction(action) {
-        return action.id === 1;
-    }
-
     render() {
         var btnCircle = {
             borderRadius: 16,
@@ -125,7 +120,7 @@ export default class Toda extends Component {
                 <div className="form-group">
                     <textarea className="form-control" id="exampleFormControlTextarea1"
                               rows="20" value={this.state.latestTODA[0].notes}
-                              ref={(input) => { this.textInput = input; }} ></textarea>
+                              ref={(input) => { this.textInput = input; }}/>
                 </div>
             </form>
         );
