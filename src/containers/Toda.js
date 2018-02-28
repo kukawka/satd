@@ -8,19 +8,25 @@ import Button from "../components/Button";
 import Well from "../components/Well";
 import Modal from "../components/Modal";
 import Portal from "../Portal";
+import io from "socket.io-client";
 
 export default class Toda extends Component {
     constructor(props) {
         super(props);
+        this.socket = io('localhost:8080');
         this.state = {
-            latestTODA: [
-                {id: 1, date: '20.12.2017', patientID: 13, versionNo: 5, current: true, notes:"Write your notes here.."},
-            ],
+            latestTODA:
+                {id: 1, date: '20.12.2017', patientID: 13, versionNo: 5, current: true},
+            /*notes:[
+                {title: "Suspine sitting", text: "They struggle with it because.."},
+                {title: "Mirror", text: "Avoiding using the mirror"}
+                ],*/
             actions: [
                 {id: 1, name: "Sitting in Dental Chair Upright", value: 2},
                 {id: 2, name: "Sitting in Dental Chair Supine", value: 0},
                 {id: 3, name: "Toothbrushing in Dental Surgery", value: 1}
             ],
+            notes:[],
             editingDisabled: true,
             showModal: false,
             showPortal: false,
@@ -29,6 +35,35 @@ export default class Toda extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.toggleEditing = this.toggleEditing.bind(this);
         this.handleClose = this.handleClose.bind(this);
+
+        this.sendNote = ev => {
+            ev.preventDefault();
+            this.socket.emit('ADD_NOTE', {
+                title: "Test",
+                text: "Something, something"
+            });
+            this.setState({message: ''});
+        }
+
+        this.socket.on('RECEIVE_NOTE', function(data){
+            addNote(data);
+        });
+
+        this.socket.on('INITIAL_NOTES', function(data){
+            setNotes(data);
+        });
+
+        const setNotes = data => {
+            //console.log(data);
+            this.setState({notes:data});
+            //console.log(this.state.notes);
+        };
+
+        const addNote = data => {
+            //console.log(data);
+            this.setState({notes: [...this.state.notes, data]});
+            //console.log(this.state.notes);
+        };
     }
 
     handleChange(e) {
@@ -118,11 +153,28 @@ export default class Toda extends Component {
         const notesForm = (
             <form>
                 <div className="form-group">
+                    <label for="exampleFormControlInput1">Title</label>
+                    <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Title of the note"/>
+                </div>
+                <div className="form-group">
+                    <label for="exampleFormControlTextarea1">Content</label>
                     <textarea className="form-control" id="exampleFormControlTextarea1"
-                              rows="20" value={this.state.latestTODA[0].notes}
+                              rows="3" placeholder="Your note.."
                               ref={(input) => { this.textInput = input; }}/>
                 </div>
+                <button type="submit" onClick={this.sendNote} className="btn btn-success">Add</button>
             </form>
+        );
+
+        const existingNotes = this.state.notes.map((note) =>
+            <div className="card" style={marginAtTop}>
+                <div className="card-header">
+                    {note.title}
+                </div>
+                <div className="card-body">
+                    <p className="card-text">{note.text}</p>
+                </div>
+            </div>
         );
 
         return (
@@ -143,6 +195,8 @@ export default class Toda extends Component {
                             </div>
                             <div className="card-body">
                                 {notesForm}
+                                <hr/>
+                                {existingNotes}
                             </div>
                         </div>
                     </Col>
@@ -162,7 +216,7 @@ export default class Toda extends Component {
                             <div className="card-header">
                                 <div class="d-flex justify-content-between">
                                     <h3>Tolerance of Dental Actions</h3>
-                                    <h5>{this.state.latestTODA[0].date}</h5>
+                                    <h5>{this.state.latestTODA.date}</h5>
                                 </div>
                             </div>
                             <div className="card-body">

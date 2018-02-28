@@ -8,6 +8,7 @@ import Button from "../components/Button";
 import DropdownButton from "../components/DropdownButton";
 import Container from "../components/Container";
 import "./Stories.css";
+import io from "socket.io-client";
 
 export default class StoryLibrary extends Component {
     constructor(props) {
@@ -28,6 +29,7 @@ export default class StoryLibrary extends Component {
         //bind methods for the searchbox
         this.handleChange = this.handleChange.bind(this);
         this.handleClick= this.handleClick.bind(this);
+        //this.socket = io('localhost:8080');
     }
 
     getInitialState() {

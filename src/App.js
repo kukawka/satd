@@ -4,6 +4,7 @@ import "./App.css";
 import RouteNavItem from "./components/RouteNavItem";
 import NavDropdown from "./components/NavDropdown";
 import Routes from "./Routes";
+import io from "socket.io-client";
 
 class App extends Component {
     constructor(props) {
@@ -16,7 +17,10 @@ class App extends Component {
             isLoggedIn: true,
             isAuthenticating:true
         };
+        this.socket = io('localhost:8080');
     }
+
+
 
     userHasLoggedIn = logged => {
         //alert(logged);
