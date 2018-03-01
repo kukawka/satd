@@ -14,7 +14,7 @@ class App extends Component {
         this.handleLogout=this.handleLogout.bind(this);
 
         this.state = {
-            isLoggedIn: true,
+            isLoggedIn: false,
             isAuthenticating:true
         };
         this.socket = io('localhost:8080');

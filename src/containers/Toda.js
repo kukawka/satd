@@ -43,7 +43,7 @@ export default class Toda extends Component {
                 text: "Something, something"
             });
             this.setState({message: ''});
-        }
+        };
 
         this.socket.on('RECEIVE_NOTE', function(data){
             addNote(data);
