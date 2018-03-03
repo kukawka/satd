@@ -11,71 +11,70 @@ export default class Login extends Component {
         super(props);
 
         this.state = {
-            email: "",
-            password: ""
+            email: '',
+            password: '',
+            submitted: false,
+            invalidEmail: false,
+            invalidPas: false,
+            loginError: false
         };
         this.socket = io('localhost:8080');
 
-        this.handleLogin = un => ev => {
-            ev.preventDefault();
+        this.handleLogin = ev => {
+            //ev.preventDefault();
             this.socket.emit('tryLoggingIn', {
-                email: un,
-                password: "Password123"
+                email: this.state.email,
+                password: this.state.password
             });
         };
 
         this.socket.on('login', function (data) {
-            alert(data.message);
+            if (data.message) {
+                alert('success');
+            }
+            else {
+                alert('failed');
+            }
         });
+
+        //this.socket.on=this.socket.on.bind(this);
     }
 
-    validateForm() {
-        return this.state.email.length > 0 && this.state.password.length > 0;
-    }
+
 
     handleChange = event => {
         this.setState({
-            [event.target.id]: event.target.value
+            [event.target.name]: event.target.value
         });
     }
-
-    //the bootstrap code for validation
-    /* var forms = document.getElementsByClassName('needs-validation');
-     // Loop over them and prevent submission
-     var validation = Array.prototype.filter.call(forms, function(form) {
-         form.addEventListener('submit', function(event) {
-             if (form.checkValidity() === false) {
-                 event.preventDefault();
-                 event.stopPropagation();
-             }
-             form.classList.add('was-validated');
-         }, false);
-     });*/
-
-
-    /*login(email, password) {
-        const userPool = new CognitoUserPool({
-            UserPoolId: config.cognito.USER_POOL_ID,
-            ClientId: config.cognito.APP_CLIENT_ID
-        });
-        const user = new CognitoUser({ Username: email, Pool: userPool });
-        const authenticationData = { Username: email, Password: password };
-        const authenticationDetails = new AuthenticationDetails(authenticationData);
-
-        return new Promise((resolve, reject) =>
-            result=>resolve()
-        );
-    }*/
 
     handleSubmit = async event => {
         event.preventDefault();
 
-        try {
-            //await this.login(this.state.email, this.state.password);
-            this.props.userHasLoggedIn(true);
-            alert("Logged in");
-        } catch (e) {
-            alert(e);
+        //reset the states
+        this.setState({
+            invalidEmail: false,
+            invalidPas: false
+        });
+
+        let invalidData=false ;
+        //checking for a valid email:
+        var standardE = /\S+@\S+\.\S+/;
+        if (!standardE.test(this.state.email)) {
+            this.setState({invalidEmail: true});
+            invalidData=true;
+        }
+        //checking for a valid password
+        // at least one number, one lowercase and one uppercase letter
+        // at least six characters
+        var standardP = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+        if (!standardP.test(this.state.password)) {
+            this.setState({invalidPas: true});
+            invalidData=true;
+        }
+        if (!invalidData) {
+            //alert('no error');
+            this.handleLogin();
         }
     }
 
@@ -84,6 +83,7 @@ export default class Login extends Component {
             textAlign: "center",
             alignItems: "center"
         };
+
         return (
             <Container>
                 <Row>
@@ -100,22 +100,36 @@ export default class Login extends Component {
                     <Col xs={12} md={4}/>
                     <Col xs={12} md={4}>
                         <Well id="loginFormWell">
-                            <form class="needs-validation" novalidate>
+                            <form class="needs-validation" onSubmit={this.handleSubmit} noValidate>
                                 <div class="form-group">
                                     <label for="validationCustom01">Username</label>
-                                    <input type="email" class="form-control" id="emailInput" placeholder="Email"
-                                           value="" required/>
-                                    <div class="invalid-feedback">
-                                        Please provide a valid username!
+                                    <input type="email"
+                                           class={this.state.invalidEmail ? "form-control is-invalid" : "form-control"}
+                                           name="email" placeholder="Email"
+                                           value={this.state.email} onChange={this.handleChange} required/>
+                                    {this.state.invalidEmail &&
+                                    <div className="invalid-feedback">
+                                        Please provide a valid email!
                                     </div>
+                                    }
+                                    {this.state.loginError &&
+                                    <div className="invalid-feedback">
+                                        Invalid email or password
+                                    </div>
+                                    }
                                 </div>
                                 <div class="form-group">
                                     <label for="validationCustom02">Password</label>
-                                    <input type="password" class="form-control" id="passwordInput"
-                                           placeholder="Password" value="" required/>
+                                    <input type="password"
+                                           class={this.state.invalidPas ? "form-control is-invalid" : "form-control"}
+                                           name="password"
+                                           placeholder="Password" value={this.state.password}
+                                           onChange={this.handleChange} required/>
+                                    {this.state.invalidPas &&
                                     <div class="invalid-feedback">
                                         Please provide a valid password!
                                     </div>
+                                    }
                                 </div>
                                 <div class="form-group">
                                     <div class="form-check">
@@ -127,7 +141,7 @@ export default class Login extends Component {
                                     </div>
                                 </div>
                                 <div style={centeredStyle}>
-                                    <button className="btn btn-primary" onClick={this.handleLogin("sarahsmith@nhs.net")}
+                                    <button className="btn btn-primary"
                                             type="submit">Log in
                                     </button>
                                 </div>

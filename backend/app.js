@@ -68,10 +68,10 @@ io.on('connection', (socket) => {
         db.query(query,[data.email,data.password] , function(err, rows, fields) {
             if (err) throw err;
             if(rows.length === 0) {
-                socket.emit('login', {message:'Wrong login or password', session: ''});
+                socket.emit('login', {message: false, session: ''});
             } else {
                 //socket.set('session', data.userLogin);
-                socket.emit('login', {message: 'success', session: session});
+                socket.emit('login', {message: true, session: session});
             }
         });
     });
