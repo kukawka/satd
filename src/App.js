@@ -33,7 +33,7 @@ class App extends Component {
     }
 
     render() {
-        //alert(this.state.isLoggedIn);
+        alert(this.state.isLoggedIn);
         //<li className="nav-item dropdown" title="Stories" id="basic-nav-dropdown">
 
         const stateProps = {

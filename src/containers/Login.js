@@ -30,14 +30,21 @@ export default class Login extends Component {
 
         this.socket.on('login', function (data) {
             if (data.message) {
-                alert('success');
+                //alert('success');
+                props.userHasLoggedIn(true);
+                //this.logIn();
             }
             else {
                 alert('failed');
             }
         });
+        this.logIn=this.logIn.bind(this) ;
 
         //this.socket.on=this.socket.on.bind(this);
+    }
+
+    logIn(){
+        this.props.userHasLoggedIn(true);
     }
 
 
