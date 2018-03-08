@@ -36,13 +36,11 @@ io = socket(server);
 
 var notes=[];
 var initialDataSet=false ;
+var loggedIn=false ;
 
 io.on('connection', (socket) => {
     console.log(socket.id);
     if(!initialDataSet) {
-        var sess = session;  //initialize session variable
-        session.user = "sarahsmith";
-        console.log(session.user);
 
         db.query('SELECT * from todanotes')
             .on('result', function (data) {
