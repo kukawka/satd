@@ -44,6 +44,19 @@ export default class StoryEditor extends Component {
                 {id: 4, title: 'Dental extraction', text: '', imageTitle: 'pulling', isWorrying: false},
                 {id: 5, title: 'Teeth Whitening', text: '', imageTitle: 'whitening', isWorrying: false}
             ],
+            initialLibraryOfPages: [
+                {
+                    id: 1,
+                    title: 'Tooth drilling',
+                    text: 'You will come to the reception.',
+                    imageTitle: 'drilling',
+                    isWorrying: false
+                },
+                {id: 2, title: 'Teeth cleaning', text: '', imageTitle: 'cleaning', isWorrying: false},
+                {id: 3, title: 'Examination', text: '', imageTitle: 'checkup', isWorrying: false},
+                {id: 4, title: 'Dental extraction', text: '', imageTitle: 'pulling', isWorrying: false},
+                {id: 5, title: 'Teeth Whitening', text: '', imageTitle: 'whitening', isWorrying: false}
+            ],
             currentPage:
                 {
                     id: 1,
@@ -52,6 +65,8 @@ export default class StoryEditor extends Component {
                     imageTitle: 'entrance',
                     isWorrying: false
                 },
+            inspectedPage: null,
+            searchedPage: '',
             selectedPagesItem: 3,
             selectedParentItem: 1,
             selectedImagesItem: 5
@@ -63,8 +78,39 @@ export default class StoryEditor extends Component {
         this.moveDown = this.moveDown.bind(this);
         this.moveUp = this.moveUp.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
-        this.addTemplatePage= this.addTemplatePage.bind(this);
-        this.inspectPage= this.inspectPage.bind(this);
+        this.addTemplatePage = this.addTemplatePage.bind(this);
+        this.inspectPage = this.inspectPage.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
+        this.handleClear = this.handleClear.bind(this);
+    }
+
+    getInitialState() {
+        return this.state.initialLibraryOfPages;
+    }
+
+
+    handleSearch(event) {
+        var updatedList = this.getInitialState();
+        this.setState({
+            searchedPage: event.target.value
+        });
+        //alert(Object.keys(this.state.stories)) ;
+        updatedList = updatedList.filter(function (item) {
+            return item.title.toLowerCase().search(
+                event.target.value.toLowerCase()) !== -1 ||
+                item.imageTitle.toLowerCase().search(
+                    event.target.value.toLowerCase()) !== -1;
+        });
+
+        this.setState({libraryOfPages: updatedList});
+    }
+
+    handleClear() {
+        this.setState({
+            searchedPage: ''
+        });
+        this.setState(
+            {libraryOfPages: this.state.initialLibraryOfPages});
     }
 
     handleEdit(e) {
@@ -143,10 +189,10 @@ export default class StoryEditor extends Component {
         this.state.pages.push(blankPage);
     }
 
-    addTemplatePage(e){
+    addTemplatePage(e) {
         alert('add a page');
-        var pageToAdd= this.state.libraryOfPages[e.currentTarget.dataset.id-1];
-        pageToAdd.id=this.state.pages.length+1;
+        var pageToAdd = this.state.libraryOfPages[e.currentTarget.dataset.id - 1];
+        pageToAdd.id = this.state.pages.length + 1;
         this.setState({
             currentPage: pageToAdd
         });
@@ -156,14 +202,22 @@ export default class StoryEditor extends Component {
         );
     }
 
-    inspectPage(){
-
+    inspectPage(e) {
+        //alert(e.currentTarget.dataset.id);
+        var pageToInspect = e.currentTarget.dataset.id - 1;
+        //alert(currentPage);
+        this.setState({
+            inspectedPage: this.state.libraryOfPages[pageToInspect]
+        });
     }
 
     handleSelect(e) {
         if (e.currentTarget.dataset.id == 3 || e.currentTarget.dataset.id == 4) {
             this.setState(
-                {selectedPagesItem: e.currentTarget.dataset.id}
+                {
+                    selectedPagesItem: e.currentTarget.dataset.id,
+                    inspectedPage: null
+                }
             );
         }
         else if (e.currentTarget.dataset.id == 1 || e.currentTarget.dataset.id == 2) {
@@ -273,7 +327,7 @@ export default class StoryEditor extends Component {
 
         const libraryPages = this.state.libraryOfPages.map((page) =>
             <LibraryPageThumbnail key={page.id} page={page}
-                                   onAddClick={this.addTemplatePage} onViewClick={this.inspectPage}/>
+                                  onAddClick={this.addTemplatePage} onViewClick={this.inspectPage}/>
         );
 
         let active = 7;
@@ -299,7 +353,7 @@ export default class StoryEditor extends Component {
             </nav>
         );
 
-        const pageEditor=(
+        const pageEditor = (
             <div className="card" style={marginAtTop}>
                 <div className="card-header">Page Editor</div>
                 <div className="card-body" style={scrolling}>
@@ -335,38 +389,43 @@ export default class StoryEditor extends Component {
             </div>
         );
 
-        const pageInspector=(
+        const pageInspector = (
             <div className="card" style={marginAtTop}>
                 <div className="card-header">Page Inspector</div>
                 <div className="card-body" style={scrolling}>
-                    <form>
-                        <div class="form-group">
-                            <label><strong>Page Title</strong></label>
-                            <input type="text" className="form-control" id="pageTitle"
-                                   placeholder="Add the title" value={this.state.currentPage.title} disabled={true}/>
+                    {this.state.inspectedPage != null ? [
+                        <div>
+                            <form>
+                                <div className="form-group">
+                                    <label><strong>Page Title</strong></label>
+                                    <input type="text" className="form-control" id="pageTitle"
+                                           placeholder="Add the title" value={this.state.inspectedPage.title}
+                                           disabled={true}/>
+                                </div>
+                                <div className="form-group">
+                                    <label><strong>Image</strong></label>
+                                </div>
+                                <div className="d-flex justify-content-center">
+                                    <img
+                                        src={require('../images/' + this.state.inspectedPage.imageTitle + '.jpg')}
+                                        alt="Choose an image from the 'Images' tab"
+                                        style={imgStyle} className="card-img-top"/>
+                                </div>
+                                <div className="form-group" >
+                                    <label><strong>Page Story</strong></label>
+                                    <textarea className="form-control" value={this.state.inspectedPage.text}
+                                              placeholder="Text for the page.."
+                                              maxLength="100" onChange={this.updateTextValue} disabled={true}/>
+                                </div>
+                            </form>
+                            <div className="d-flex justify-content-end">
+                                {charactersLeft}/100
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label><strong>Image</strong></label>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <img
-                                src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
-                                alt="Choose an image from the 'Images' tab"
-                                style={imgStyle} className="card-img-top"/>
-                        </div>
-                        <div className="form-group">
-                            <label><strong>Page Story</strong></label>
-                            <textarea className="form-control" value={this.state.currentPage.text}
-                                      placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateTextValue} disabled={true}/>
-                        </div>
-                    </form>
-                    <div class="d-flex justify-content-end">
-                        {charactersLeft}/100
-                    </div>
+                    ] : []}
                 </div>
                 <div className="card-footer text-muted" style={alignCenter}>
-                    {storyPagination}
+                    Part of story called..
                 </div>
             </div>
         );
@@ -385,12 +444,24 @@ export default class StoryEditor extends Component {
             </div>
         );
 
+        const searchForAPageBar = (
+            <div className="input-group" style={marginAtTop}>
+                <input autoCorrect="off" autoComplete="off" onChange={this.handleSearch} value={this.state.searchedPage}
+                       id="searchbox" type="text" className="form-control"
+                       placeholder="Search for..."/>
+                <span className="input-group-btn">
+                                    <button className="btn btn-light" onClick={this.handleClear}>Cancel</button>
+                                  </span>
+            </div>
+        );
+
         var pagesTab = (
             <div id="pagesTab" className="card-body" style={scrolling}>
-                {addPageButton}
-                <hr/>
                 {pagesNav}
+                <hr/>
+                {this.state.selectedPagesItem == 3 && addPageButton}
                 {this.state.selectedPagesItem == 3 && existingPages}
+                {this.state.selectedPagesItem == 4 && searchForAPageBar}
                 {this.state.selectedPagesItem == 4 && libraryPages}
             </div>
         );
