@@ -299,8 +299,8 @@ export default class StoryEditor extends Component {
 
         //styles
         var imgStyle = {
-            minHeight: "300px",
-            maxHeight: "330px",
+            minHeight: "150px",
+            maxHeight: "220px",
             width: "auto"
         };
 
@@ -311,11 +311,20 @@ export default class StoryEditor extends Component {
 
         var scrolling = {
             overflowY: "scroll",
-            height: 650
+            height: 480
         };
 
         var marginAtTop = {
             marginTop: 10
+        };
+
+        var librariesWell={
+        overflowX: "scroll",
+            height: 200
+        };
+
+        var buttonsWell={
+            height: 100
         };
 
         /*const tooltip = (
@@ -384,8 +393,10 @@ export default class StoryEditor extends Component {
         );
 
         const libraryImages = this.state.libraryOfImages.map((image) =>
+            <Col xs={12} md={3}>
             <LibraryImageThumbnail data-id={image.id} image={image}
                                    onAddClick={this.addExistingImage} onViewClick={this.inspectImage}/>
+            </Col>
         );
 
         let active = 7;
@@ -413,22 +424,19 @@ export default class StoryEditor extends Component {
 
         const pageEditor = (
             <div className="card" style={marginAtTop}>
-                <div className="card-header">Page Editor</div>
+                <div className="card-header"><h5>Page Editor</h5></div>
                 <div className="card-body" style={scrolling}>
+                    <div class="d-flex justify-content-center">
+                        <img
+                            src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
+                            alt="Choose an image from the 'Images' tab"
+                            style={imgStyle} className="card-img-top"/>
+                    </div>
                     <form>
-                        <div class="form-group">
+                        <div class="form-group" style={marginAtTop}>
                             <label><strong>Page Title</strong></label>
                             <input type="text" className="form-control" id="pageTitle"
                                    placeholder="Add the title" value={this.state.currentPage.title}/>
-                        </div>
-                        <div class="form-group">
-                            <label><strong>Image</strong></label>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <img
-                                src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
-                                alt="Choose an image from the 'Images' tab"
-                                style={imgStyle} className="card-img-top"/>
                         </div>
                         <div className="form-group">
                             <label><strong>Page Story</strong></label>
@@ -440,9 +448,6 @@ export default class StoryEditor extends Component {
                     <div class="d-flex justify-content-end">
                         {charactersLeft}/100
                     </div>
-                </div>
-                <div className="card-footer text-muted" style={alignCenter}>
-                    {storyPagination}
                 </div>
             </div>
         );
@@ -520,15 +525,24 @@ export default class StoryEditor extends Component {
 
         var pagesTab = (
             <div id="pagesTab" className="card-body" style={scrolling}>
-                {pagesNav}
-                <hr/>
-                {this.state.selectedPagesItem == 3 && addPageButton}
                 {this.state.selectedPagesItem == 3 && existingPages}
                 {this.state.selectedPagesItem == 4 && searchForAPageBar}
                 {this.state.selectedPagesItem == 4 && libraryPages}
             </div>
         );
 
+        /*
+                        <Well>
+                    <Row className="show-grid">
+                        <Col xs={12} md={10}>
+                        </Col>
+                        <Col xs={12} md={2}>
+                            <a class="btn btn-large btn-info" href="/toda" block><Glyphicon glyph="charts">View
+                                TODA</Glyphicon></a>
+                        </Col>
+                    </Row>
+                </Well>
+         */
         return (
 
             <Container>
@@ -551,31 +565,79 @@ export default class StoryEditor extends Component {
                     </form>
                 </Portal>
                 <Well>
-                    <Row className="show-grid">
-                        <Col xs={12} md={10}>
+                    <Row className="show-grid" style={buttonsWell}>
+                        <Col xs={12} md={6}>
+                            <form>
+                                <div class="form-group row">
+                                    <div class="col-sm-6">
+                                        <input type="email" class="form-control form-control-sm" id="colFormLabelSm" placeholder="Title of the story"/>
+                                    </div>
+                                </div>
+                            </form>
                         </Col>
                         <Col xs={12} md={2}>
-                            <a class="btn btn-large btn-info" href="/toda" block><Glyphicon glyph="charts">View
+                            <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts">View
                                 TODA</Glyphicon></a>
+                        </Col>
+                        <Col xs={12} md={2}>
+                            <a class="btn btn-large btn-success" href="/toda" block><Glyphicon glyph="save">Finish Story</Glyphicon></a>
+                        </Col>
+                        <Col xs={12} md={2}>
+                            <a class="btn btn-large btn-danger" href="/toda" block><Glyphicon glyph="bin">Discard Story</Glyphicon></a>
+                        </Col>
+                    </Row>
+                </Well>
+                <Well>
+                    <Row className="show-grid">
+                        <Col xs={12} md={2}>
+                            <Row>
+                                <Col xs={12} md={12}>
+                                    <h5>Libraries</h5>
+                                    <hr/>
+                                </Col>
+                                <Col xs={12} md={12}>
+                                <ul class="nav nav-pills flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#">Pages</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Images</a>
+                                </li>
+                            </ul>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col xs={12} md={10}>
+                            <div style={librariesWell}>
+                            <Row>
+                            {libraryImages}
+                            </Row>
+                            </div>
                         </Col>
                     </Row>
                 </Well>
                 <Row>
-                    <Col xs={12} md={4}>
+                    <Col xs={12} md={3}>
                         <div className="card" style={marginAtTop}>
                             <div className="card-header">
-                                {parentNav}
+                                <h5>Pages</h5>
                             </div>
                             {this.state.selectedParentItem == 1 && pagesTab}
                             {this.state.selectedParentItem == 2 && imagesTab}
-                            <div className="card-footer text-muted">
-                                2 days ago
-                            </div>
                         </div>
                     </Col>
-                    <Col xs={12} md={8}>
+                    <Col xs={12} md={6}>
                         {this.state.selectedPagesItem == 3 && pageEditor}
                         {this.state.selectedPagesItem == 4 && pageInspector}
+                    </Col>
+                    <Col xs={12} md={3}>
+                        <div className="card" style={marginAtTop}>
+                            <div className="card-header">
+                                <h5>Notes</h5>
+                            </div>
+                            <div className="card-body" style={scrolling}>
+                            </div>
+                        </div>
                     </Col>
                 </Row>
             </Container>

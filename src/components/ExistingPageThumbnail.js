@@ -25,13 +25,9 @@ export default class ExistingPageThumbnail extends React.Component {
                 <div className="card-footer">
                     <div class="d-flex justify-content-between">
                         <p>
-                            <button className="btn btn-success" role="button" data-id={this.props.page.id}
+                            <button className="btn btn-outline-success" role="button" data-id={this.props.page.id}
                                     onClick={this.props.onEditClick} style={paddingRight}>
                                 <Glyphicon glyph="pencil"/></button>
-                            <button onClick={this.props.onDeleteClick}
-                                    className="btn btn-danger"
-                                    role="button" data-id={this.props.page.id}>
-                                <Glyphicon glyph="bin"/></button>
                         </p>
                         <div>
                             <button className="btn btn-outline-primary" data-id={this.props.page.id}

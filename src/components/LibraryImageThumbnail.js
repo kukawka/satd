@@ -11,33 +11,29 @@ export default class LibraryImageThumbnail extends React.Component {
             marginTop: "10px"
         };
         var buttonSize={
-            maxWidth: "40px",
-            height: "auto"
+            textAlign: "center",
+            alignItems: "center"
+        };
+
+        var imageStyle={
+            maxHeight:"100px",
+            width:"auto"
         };
         return (
             <div className="card" style={marginTop}>
                 <div className="card-header">
+                    <div class="d-flex justify-content-between">
                     {this.props.image.title}
+                    <button onClick={this.props.onAddClick} style={buttonSize}
+                            className="btn btn-outline-success"
+                            role="button" data-id={this.props.image.id}>
+                        <Glyphicon glyph="add"/></button>
+                    </div>
                 </div>
                 <div className="card-body">
                     <img src={require('../images/'+this.props.image.path+'.jpg')} alt="No image assigned yet."
-                         className="card-img-top"/>
+                         className="card-img-top" style={imageStyle}/>
                 </div>
-                <div className="card-footer">
-                    <div class="d-flex justify-content-center">
-                        <p>
-                            <button className="btn btn-success" role="button" data-id={this.props.image.id}
-                                    onClick={this.props.onViewClick} style={paddingRight}>
-                                <Glyphicon glyph="view"/></button>
-                            <button onClick={this.props.onAddClick}
-                                    className="btn btn-danger"
-                                    role="button" data-id={this.props.image.id}>
-                                <Glyphicon glyph="add"/></button>
-                        </p>
-                        <div>
-                    </div>
-                </div>
-            </div>
             </div>
         );
     }
