@@ -183,7 +183,10 @@ export default class Toda extends Component {
                 <Portal
                     open={this.state.showPortal}
                     header="A note required"
-                    onClose={this.handleClose}
+                    onConfirm={this.handleClose}
+                    buttonText="ADD NOTE"
+                    cancelButtonText=""
+                    cancelButton={false}
                 >
                     <p>Please add a note to explain the low tolerance. </p>
                 </Portal>

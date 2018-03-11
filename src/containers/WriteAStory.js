@@ -12,6 +12,8 @@ import "./WriteAStory.css";
 import Glyphicon from "../components/Glyphicon";
 import Nav from "../components/Nav";
 import LibraryPageThumbnail from "../components/LibraryPageThumbnail";
+import LibraryImageThumbnail from "../components/LibraryImageThumbnail";
+import Portal from '../Portal';
 
 export default class StoryEditor extends Component {
     constructor(props) {
@@ -30,6 +32,13 @@ export default class StoryEditor extends Component {
                 {id: 3, title: 'Sit in the chair', text: '', imageTitle: 'chair', isWorrying: false},
                 {id: 4, title: 'Put your hand up to rest', text: '', imageTitle: 'hand', isWorrying: false},
                 {id: 5, title: 'Go back to reception', text: '', imageTitle: 'reception', isWorrying: false}
+            ],
+            libraryOfImages: [
+                {id: 1, title: 'Reception', description: '', path: 'reception'},
+                {id: 2, title: 'Chair', description: '', path: 'chair'},
+                {id: 3, title: 'Hand up', description: '', path: 'hand'},
+                {id: 4, title: 'UV light', description: '', path: 'whitening'},
+                {id: 5, title: 'Pulled tooth', description: '', path: 'pulling'}
             ],
             libraryOfPages: [
                 {
@@ -69,7 +78,10 @@ export default class StoryEditor extends Component {
             searchedPage: '',
             selectedPagesItem: 3,
             selectedParentItem: 1,
-            selectedImagesItem: 5
+            selectedImagesItem: 5,
+            showAddImagePortal: false,
+            pageToAddTo:1,
+            imageToAdd:0
         };
         this.handleSelect = this.handleSelect.bind(this);
         this.updateTextValue = this.updateTextValue.bind(this);
@@ -82,10 +94,51 @@ export default class StoryEditor extends Component {
         this.inspectPage = this.inspectPage.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.handleClear = this.handleClear.bind(this);
+        this.handleClosePortal = this.handleClosePortal.bind(this);
+        this.addExistingImage=this.addExistingImage.bind(this);
+        this.inspectImage=this.inspectImage.bind(this);
+        this.handleAddImage=this.handleAddImage.bind(this);
+        this.handleSelectChange=this.handleSelectChange.bind(this);
+    }
+
+    addExistingImage(e){
+        //alert(e.currentTarget.dataset.id);
+        this.setState({
+            imageToAdd: e.currentTarget.dataset.id,
+            showAddImagePortal: !this.state.showAddImagePortal});
+    }
+
+    handleAddImage(){
+        var modifiedPages = this.state.pages;
+        var images=this.state.libraryOfImages;
+        modifiedPages[this.state.pageToAddTo-1].imageTitle=images[this.state.imageToAdd-1].path;
+        this.setState({
+            pages: modifiedPages,
+            currentPage: modifiedPages[this.state.pageToAddTo-1],
+            pageToAddTo:1,
+            imageToAdd:1,
+            showAddImagePortal: !this.state.showAddImagePortal});
+    }
+
+    inspectImage(){
+
+    }
+
+    handleClosePortal() {
+        this.setState({
+            showAddImagePortal: false
+        });
     }
 
     getInitialState() {
         return this.state.initialLibraryOfPages;
+    }
+
+    handleSelectChange(e){
+        this.setState({
+            pageToAddTo: e.target.value
+        });
+        //alert(e.target.value);
     }
 
 
@@ -330,6 +383,11 @@ export default class StoryEditor extends Component {
                                   onAddClick={this.addTemplatePage} onViewClick={this.inspectPage}/>
         );
 
+        const libraryImages = this.state.libraryOfImages.map((image) =>
+            <LibraryImageThumbnail data-id={image.id} image={image}
+                                   onAddClick={this.addExistingImage} onViewClick={this.inspectImage}/>
+        );
+
         let active = 7;
         let items = [];
         for (let number = 1; number <= this.state.pages.length; number++) {
@@ -411,14 +469,14 @@ export default class StoryEditor extends Component {
                                         alt="Choose an image from the 'Images' tab"
                                         style={imgStyle} className="card-img-top"/>
                                 </div>
-                                <div className="form-group" >
+                                <div className="form-group">
                                     <label><strong>Page Story</strong></label>
                                     <textarea className="form-control" value={this.state.inspectedPage.text}
                                               placeholder="Text for the page.."
                                               maxLength="100" onChange={this.updateTextValue} disabled={true}/>
                                 </div>
                             </form>
-                            <div className="d-flex justify-content-end">
+                            <div classNamenp="d-flex justify-content-end">
                                 {charactersLeft}/100
                             </div>
                         </div>
@@ -433,6 +491,7 @@ export default class StoryEditor extends Component {
         var imagesTab = (
             <div className="card-body" style={scrolling}>
                 {imagesNav}
+                {this.state.selectedImagesItem == 6 && libraryImages}
             </div>
         );
 
@@ -455,6 +514,10 @@ export default class StoryEditor extends Component {
             </div>
         );
 
+        const addToPageOptions = this.state.pages.map((page) =>
+            <option value={page.id}>{page.title}</option>
+        );
+
         var pagesTab = (
             <div id="pagesTab" className="card-body" style={scrolling}>
                 {pagesNav}
@@ -469,6 +532,24 @@ export default class StoryEditor extends Component {
         return (
 
             <Container>
+                <Portal
+                    open={this.state.showAddImagePortal}
+                    header="A note required"
+                    onConfirm={this.handleAddImage}
+                    onCancel={this.handleClosePortal}
+                    buttonText="ADD"
+                    cancelButtonText="CANCEL"
+                    cancelButton={true}
+                >
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect1">Choose the page to add the image to</label>
+                            <select className="form-control" value={this.state.pageToAddTo} onChange={this.handleSelectChange} id="exampleFormControlSelect1">
+                                {addToPageOptions}
+                            </select>
+                        </div>
+                    </form>
+                </Portal>
                 <Well>
                     <Row className="show-grid">
                         <Col xs={12} md={10}>

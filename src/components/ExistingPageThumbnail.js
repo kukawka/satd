@@ -5,7 +5,9 @@ export default class ExistingPageThumbnail extends React.Component {
     render() {
         var image = '../images/' + this.props.page.imageTitle + '.jpg';
         var paddingRight = {
-            marginRight: "2px"
+            marginRight: "5px",
+            /*maxWidth:"30px",
+            maxHeight:"30px"*/
         };
 
         var marginTop = {
