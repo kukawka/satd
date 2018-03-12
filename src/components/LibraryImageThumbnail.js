@@ -3,36 +3,27 @@ import Glyphicon from "./Glyphicon";
 
 export default class LibraryImageThumbnail extends React.Component {
     render() {
-        var paddingRight = {
-            marginRight: "2px"
+        var marginRight = {
+            marginRight: "3px"
         };
 
-        var marginTop = {
-            marginTop: "10px"
-        };
-        var buttonSize={
-            textAlign: "center",
-            alignItems: "center"
-        };
-
-        var imageStyle={
-            maxHeight:"100px",
-            width:"auto"
+        var imageStyle = {
+            maxHeight: "90px",
+            width: "auto"
         };
         return (
-            <div className="card" style={marginTop}>
-                <div className="card-header">
-                    <div class="d-flex justify-content-between">
-                    {this.props.image.title}
-                    <button onClick={this.props.onAddClick} style={buttonSize}
-                            className="btn btn-outline-success"
+            <div className="card">
+                <img src={require('../images/' + this.props.image.path + '.jpg')} alt="No image assigned yet."
+                     className="card-img-top" style={imageStyle}/>
+                <div className="card-body">
+                    <button onClick={this.props.onViewClick}
+                            className="btn btn-info"
+                            role="button" data-id={this.props.image.id} style={marginRight}>
+                        <Glyphicon glyph="view"/></button>
+                    <button onClick={this.props.onAddClick}
+                            className="btn btn-success"
                             role="button" data-id={this.props.image.id}>
                         <Glyphicon glyph="add"/></button>
-                    </div>
-                </div>
-                <div className="card-body">
-                    <img src={require('../images/'+this.props.image.path+'.jpg')} alt="No image assigned yet."
-                         className="card-img-top" style={imageStyle}/>
                 </div>
             </div>
         );

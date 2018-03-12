@@ -5,7 +5,7 @@ export default class ExistingPageThumbnail extends React.Component {
     render() {
         var image = '../images/' + this.props.page.imageTitle + '.jpg';
         var paddingRight = {
-            marginRight: "5px",
+            marginRight: "3px",
             /*maxWidth:"30px",
             maxHeight:"30px"*/
         };
@@ -13,29 +13,29 @@ export default class ExistingPageThumbnail extends React.Component {
         var marginTop = {
             marginTop: "10px"
         };
+
+        var smallMarginTop = {
+            marginTop: "5px"
+        };
+
         return (
             <div className="card" style={marginTop}>
-                <div className="card-header">
-                    {this.props.page.id}. {this.props.page.title}
-                </div>
-                <div className="card-body">
+
                     <img src={require('../images/' + this.props.page.imageTitle + '.jpg')} alt="No image assigned yet."
                          className="card-img-top"/>
-                </div>
-                <div className="card-footer">
-                    <div class="d-flex justify-content-between">
-                        <p>
-                            <button className="btn btn-outline-success" role="button" data-id={this.props.page.id}
-                                    onClick={this.props.onEditClick} style={paddingRight}>
-                                <Glyphicon glyph="pencil"/></button>
-                        </p>
+                <div className="card-body">
+                <p className="card-title">{this.props.page.title}</p>
+                    <div className="card-text d-flex justify-content-between">
                         <div>
-                            <button className="btn btn-outline-primary" data-id={this.props.page.id}
+                            <button className="btn btn-secondary" data-id={this.props.page.id}
                                     style={paddingRight} onClick={this.props.onMoveUp}><Glyphicon glyph="arrow-up"/>
                             </button>
-                            <button className="btn btn-outline-primary" data-id={this.props.page.id}
+                            <button className="btn btn-secondary" data-id={this.props.page.id}
                                     onClick={this.props.onMoveDown}><Glyphicon glyph="arrow-down"/></button>
                         </div>
+                        <button className="btn btn-success" role="button" data-id={this.props.page.id}
+                                onClick={this.props.onEditClick} style={paddingRight}>
+                            <Glyphicon glyph="pencil"/></button>
                     </div>
                 </div>
             </div>

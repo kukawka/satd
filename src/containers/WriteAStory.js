@@ -38,7 +38,7 @@ export default class StoryEditor extends Component {
                 {id: 2, title: 'Chair', description: '', path: 'chair'},
                 {id: 3, title: 'Hand up', description: '', path: 'hand'},
                 {id: 4, title: 'UV light', description: '', path: 'whitening'},
-                {id: 5, title: 'Pulled tooth', description: '', path: 'pulling'}
+                {id: 5, title: 'Extraction', description: '', path: 'pulling'}
             ],
             libraryOfPages: [
                 {
@@ -50,8 +50,8 @@ export default class StoryEditor extends Component {
                 },
                 {id: 2, title: 'Teeth cleaning', text: '', imageTitle: 'cleaning', isWorrying: false},
                 {id: 3, title: 'Examination', text: '', imageTitle: 'checkup', isWorrying: false},
-                {id: 4, title: 'Dental extraction', text: '', imageTitle: 'pulling', isWorrying: false},
-                {id: 5, title: 'Teeth Whitening', text: '', imageTitle: 'whitening', isWorrying: false}
+                {id: 4, title: 'Dental extr..', text: '', imageTitle: 'pulling', isWorrying: false},
+                {id: 5, title: 'Teeth Whit..', text: '', imageTitle: 'whitening', isWorrying: false}
             ],
             initialLibraryOfPages: [
                 {
@@ -79,9 +79,12 @@ export default class StoryEditor extends Component {
             selectedPagesItem: 3,
             selectedParentItem: 1,
             selectedImagesItem: 5,
+            selectedLibItem:1,
             showAddImagePortal: false,
+            showInspectImagePortal:false,
+            showInspectPagePortal:false,
             pageToAddTo:1,
-            imageToAdd:0
+            imageToAdd:null
         };
         this.handleSelect = this.handleSelect.bind(this);
         this.updateTextValue = this.updateTextValue.bind(this);
@@ -99,34 +102,50 @@ export default class StoryEditor extends Component {
         this.inspectImage=this.inspectImage.bind(this);
         this.handleAddImage=this.handleAddImage.bind(this);
         this.handleSelectChange=this.handleSelectChange.bind(this);
+        this.addInspectedPage=this.addInspectedPage.bind(this);
+        this.addInspectedImage=this.addInspectedImage.bind(this);
     }
 
     addExistingImage(e){
         //alert(e.currentTarget.dataset.id);
+        var allImages=this.state.libraryOfImages;
+        var imageToAdd=allImages[e.currentTarget.dataset.id-1];
         this.setState({
-            imageToAdd: e.currentTarget.dataset.id,
+            imageToAdd: imageToAdd,
             showAddImagePortal: !this.state.showAddImagePortal});
+    }
+
+    addInspectedImage(){
+        this.setState({
+            showInspectImagePortal:false,
+            showAddImagePortal:true
+        });
     }
 
     handleAddImage(){
         var modifiedPages = this.state.pages;
-        var images=this.state.libraryOfImages;
-        modifiedPages[this.state.pageToAddTo-1].imageTitle=images[this.state.imageToAdd-1].path;
+        modifiedPages[this.state.pageToAddTo-1].imageTitle=this.state.imageToAdd.path;
         this.setState({
             pages: modifiedPages,
             currentPage: modifiedPages[this.state.pageToAddTo-1],
             pageToAddTo:1,
-            imageToAdd:1,
+            imageToAdd:null,
             showAddImagePortal: !this.state.showAddImagePortal});
     }
 
-    inspectImage(){
-
+    inspectImage(e){
+        var allImages=this.state.libraryOfImages;
+        var imageToAdd=allImages[e.currentTarget.dataset.id-1];
+        this.setState({
+            imageToAdd: imageToAdd,
+            showInspectImagePortal: true});
     }
 
     handleClosePortal() {
         this.setState({
-            showAddImagePortal: false
+            showAddImagePortal: false,
+            showInspectImagePortal:false,
+            showInspectPagePortal: false
         });
     }
 
@@ -250,9 +269,17 @@ export default class StoryEditor extends Component {
             currentPage: pageToAdd
         });
         this.state.pages.push(pageToAdd);
-        this.setState(
-            {selectedPagesItem: 3}
-        );
+    }
+
+    addInspectedPage(){
+        var newPages = this.state.pages;
+        var pageToAdd=this.state.inspectedPage;
+        pageToAdd.id=this.state.pages.length + 1;
+        this.setState({
+            currentPage: pageToAdd,
+            showInspectPagePortal:false
+        });
+        this.state.pages.push(pageToAdd);
     }
 
     inspectPage(e) {
@@ -260,30 +287,19 @@ export default class StoryEditor extends Component {
         var pageToInspect = e.currentTarget.dataset.id - 1;
         //alert(currentPage);
         this.setState({
+            showInspectPagePortal: true,
             inspectedPage: this.state.libraryOfPages[pageToInspect]
         });
     }
 
     handleSelect(e) {
-        if (e.currentTarget.dataset.id == 3 || e.currentTarget.dataset.id == 4) {
+        if (e.currentTarget.dataset.id == 1 || e.currentTarget.dataset.id == 2) {
             this.setState(
                 {
-                    selectedPagesItem: e.currentTarget.dataset.id,
-                    inspectedPage: null
+                    selectedLibItem: e.currentTarget.dataset.id
                 }
             );
         }
-        else if (e.currentTarget.dataset.id == 1 || e.currentTarget.dataset.id == 2) {
-            this.setState(
-                {selectedParentItem: e.currentTarget.dataset.id}
-            );
-        }
-        else if (e.currentTarget.dataset.id == 5 || e.currentTarget.dataset.id == 6) {
-            this.setState(
-                {selectedImagesItem: e.currentTarget.dataset.id}
-            );
-        }
-
     }
 
     updateTextValue(evt) {
@@ -314,69 +330,35 @@ export default class StoryEditor extends Component {
             height: 480
         };
 
+        var pageEditorStyle= {
+            height:550
+        };
+
         var marginAtTop = {
             marginTop: 10
         };
 
         var librariesWell={
         overflowX: "scroll",
-            height: 200
+            height:280
         };
 
         var buttonsWell={
             height: 100
         };
 
-        /*const tooltip = (
-            <Tooltip id="tooltip">
-                <strong>Tolerance Of Dental Actions</strong>
-            </Tooltip>
-        );*/
+        var inspectedImageStyle={
+            width: 450,
+            height: "auto"
+        };
 
-
-        const pagesNav = (
-            <Nav type="nav nav-pills">
-                <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="3">
-                    <a className={this.state.selectedPagesItem == 3 ? "nav-link active" : "nav-link"} id="link1"
-                       href="#">
-                        This Story
-                    </a>
-                </li>
-                <li class="nav-item" onClick={e => this.handleSelect(e)} data-id="4">
-                    <a className={this.state.selectedPagesItem == 4 ? "nav-link active" : "nav-link"} href="#">
-                        Libraries
-                    </a>
-                </li>
-            </Nav>
-        );
-
-        const parentNav = (
-            <ul className="nav nav-tabs">
+        const librariesNav = (
+            <ul className="nav nav-pills flex-column">
                 <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="1">
-                    <a className={this.state.selectedParentItem == 1 ? "nav-link active" : "nav-link"} href="#">
-                        Pages
-                    </a>
+                    <a className={this.state.selectedLibItem == 1 ? "nav-link active" : "nav-link"} href="#">Pages</a>
                 </li>
                 <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="2">
-                    <a className={this.state.selectedParentItem == 2 ? "nav-link active" : "nav-link"} href="#">
-                        Images
-                    </a>
-                </li>
-            </ul>
-        );
-
-        const imagesNav = (
-            <ul className="nav nav-pills">
-                <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="5">
-                    <a className={this.state.selectedImagesItem == 5 ? "nav-link active" : "nav-link"} id="link1"
-                       href="#">
-                        Import
-                    </a>
-                </li>
-                <li class="nav-item" onClick={e => this.handleSelect(e)} data-id="6">
-                    <a className={this.state.selectedImagesItem == 6 ? "nav-link active" : "nav-link"} href="#">
-                        Libraries
-                    </a>
+                    <a className={this.state.selectedLibItem == 2 ? "nav-link active" : "nav-link"} href="#">Images</a>
                 </li>
             </ul>
         );
@@ -388,15 +370,17 @@ export default class StoryEditor extends Component {
         );
 
         const libraryPages = this.state.libraryOfPages.map((page) =>
+            <div class="p-3">
             <LibraryPageThumbnail key={page.id} page={page}
                                   onAddClick={this.addTemplatePage} onViewClick={this.inspectPage}/>
+            </div>
         );
 
         const libraryImages = this.state.libraryOfImages.map((image) =>
-            <Col xs={12} md={3}>
+            <div class="p-3">
             <LibraryImageThumbnail data-id={image.id} image={image}
                                    onAddClick={this.addExistingImage} onViewClick={this.inspectImage}/>
-            </Col>
+            </div>
         );
 
         let active = 7;
@@ -423,9 +407,13 @@ export default class StoryEditor extends Component {
         );
 
         const pageEditor = (
-            <div className="card" style={marginAtTop}>
-                <div className="card-header"><h5>Page Editor</h5></div>
-                <div className="card-body" style={scrolling}>
+            <div className="card">
+                <div className="card-body" style={pageEditorStyle}>
+                <div className="card-text d-flex justify-content-between">
+                    <p><Glyphicon glyph="save">  All changes saved.</Glyphicon></p>
+                    <a class="btn btn-large btn-danger" href="/toda" block><Glyphicon glyph="bin"> Delete Page</Glyphicon></a>
+                </div>
+                    <hr/>
                     <div class="d-flex justify-content-center">
                         <img
                             src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
@@ -453,11 +441,8 @@ export default class StoryEditor extends Component {
         );
 
         const pageInspector = (
-            <div className="card" style={marginAtTop}>
-                <div className="card-header">Page Inspector</div>
-                <div className="card-body" style={scrolling}>
-                    {this.state.inspectedPage != null ? [
                         <div>
+                            {this.state.inspectedPage != null ? [
                             <form>
                                 <div className="form-group">
                                     <label><strong>Page Title</strong></label>
@@ -480,25 +465,14 @@ export default class StoryEditor extends Component {
                                               placeholder="Text for the page.."
                                               maxLength="100" onChange={this.updateTextValue} disabled={true}/>
                                 </div>
+                                <div className="d-flex justify-content-end">
+                                    {charactersLeft}/100
+                                </div>
                             </form>
-                            <div classNamenp="d-flex justify-content-end">
-                                {charactersLeft}/100
-                            </div>
-                        </div>
                     ] : []}
-                </div>
-                <div className="card-footer text-muted" style={alignCenter}>
-                    Part of story called..
-                </div>
-            </div>
+                        </div>
         );
 
-        var imagesTab = (
-            <div className="card-body" style={scrolling}>
-                {imagesNav}
-                {this.state.selectedImagesItem == 6 && libraryImages}
-            </div>
-        );
 
         var addPageButton = (
             <div className="d-flex justify-content-center">
@@ -531,38 +505,52 @@ export default class StoryEditor extends Component {
             </div>
         );
 
-        /*
-                        <Well>
-                    <Row className="show-grid">
-                        <Col xs={12} md={10}>
-                        </Col>
-                        <Col xs={12} md={2}>
-                            <a class="btn btn-large btn-info" href="/toda" block><Glyphicon glyph="charts">View
-                                TODA</Glyphicon></a>
-                        </Col>
-                    </Row>
-                </Well>
-         */
         return (
 
             <Container>
                 <Portal
                     open={this.state.showAddImagePortal}
-                    header="A note required"
+                    header="Add the Image to one of the Pages"
                     onConfirm={this.handleAddImage}
                     onCancel={this.handleClosePortal}
                     buttonText="ADD"
-                    cancelButtonText="CANCEL"
+                    cancelButtonText="CLOSE"
                     cancelButton={true}
                 >
                     <form>
                         <div class="form-group">
-                            <label for="exampleFormControlSelect1">Choose the page to add the image to</label>
+                            <label for="exampleFormControlSelect1">Choose the Page</label>
                             <select className="form-control" value={this.state.pageToAddTo} onChange={this.handleSelectChange} id="exampleFormControlSelect1">
                                 {addToPageOptions}
                             </select>
                         </div>
                     </form>
+                </Portal>
+                <Portal
+                    open={this.state.showInspectImagePortal}
+                    header="A note required"
+                    onConfirm={this.addInspectedImage}
+                    onCancel={this.handleClosePortal}
+                    buttonText="ADD TO A PAGE"
+                    cancelButtonText="CANCEL"
+                    cancelButton={true}
+                >
+                    <div className="d-flex justify-content-center">
+                    {this.state.imageToAdd!=null ?
+                    <img src={require('../images/' + this.state.imageToAdd.path + '.jpg')} alt="Error" style={inspectedImageStyle}/>
+                        :[]}
+                    </div>
+                </Portal>
+                <Portal
+                    open={this.state.showInspectPagePortal}
+                    header="Page Inspector"
+                    onConfirm={this.addInspectedPage}
+                    onCancel={this.handleClosePortal}
+                    buttonText="ADD"
+                    cancelButtonText="CLOSE"
+                    cancelButton={true}
+                >
+                    {pageInspector}
                 </Portal>
                 <Well>
                     <Row className="show-grid" style={buttonsWell}>
@@ -576,54 +564,48 @@ export default class StoryEditor extends Component {
                             </form>
                         </Col>
                         <Col xs={12} md={2}>
-                            <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts">View
+                            <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts"> View
                                 TODA</Glyphicon></a>
                         </Col>
                         <Col xs={12} md={2}>
-                            <a class="btn btn-large btn-success" href="/toda" block><Glyphicon glyph="save">Finish Story</Glyphicon></a>
+                            <a class="btn btn-large btn-success" href="/toda" block><Glyphicon glyph="save"> Finish Story</Glyphicon></a>
                         </Col>
                         <Col xs={12} md={2}>
-                            <a class="btn btn-large btn-danger" href="/toda" block><Glyphicon glyph="bin">Discard Story</Glyphicon></a>
+                            <a class="btn btn-large btn-danger" href="/toda" block><Glyphicon glyph="bin"> Discard Story</Glyphicon></a>
                         </Col>
                     </Row>
                 </Well>
-                <Well>
+                <div class="card" style={librariesWell}>
+                    <div class="card-body">
                     <Row className="show-grid">
                         <Col xs={12} md={2}>
                             <Row>
                                 <Col xs={12} md={12}>
                                     <h5>Libraries</h5>
                                     <hr/>
+                                    {librariesNav}
                                 </Col>
                                 <Col xs={12} md={12}>
-                                <ul class="nav nav-pills flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="#">Pages</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Images</a>
-                                </li>
-                            </ul>
+
                                 </Col>
                             </Row>
                         </Col>
                         <Col xs={12} md={10}>
-                            <div style={librariesWell}>
-                            <Row>
-                            {libraryImages}
-                            </Row>
-                            </div>
+                                <div class="d-flex" >
+                                    {this.state.selectedLibItem == 1 && libraryPages}
+                                    {this.state.selectedLibItem == 2 && libraryImages}
+                                </div>
                         </Col>
                     </Row>
-                </Well>
+                </div>
+                </div>
                 <Row>
                     <Col xs={12} md={3}>
-                        <div className="card" style={marginAtTop}>
+                        <div className="card">
                             <div className="card-header">
                                 <h5>Pages</h5>
                             </div>
-                            {this.state.selectedParentItem == 1 && pagesTab}
-                            {this.state.selectedParentItem == 2 && imagesTab}
+                            {pagesTab}
                         </div>
                     </Col>
                     <Col xs={12} md={6}>
@@ -631,7 +613,7 @@ export default class StoryEditor extends Component {
                         {this.state.selectedPagesItem == 4 && pageInspector}
                     </Col>
                     <Col xs={12} md={3}>
-                        <div className="card" style={marginAtTop}>
+                        <div className="card">
                             <div className="card-header">
                                 <h5>Notes</h5>
                             </div>

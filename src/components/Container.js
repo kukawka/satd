@@ -6,7 +6,7 @@ export default class Container extends React.Component {
             marginTop: 10
         };
         return (
-            <div className="container-fluid" style={marginAtTop}>
+            <div className="container-fluid">
                 {this.props.children}
             </div>
         )
