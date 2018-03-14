@@ -30,23 +30,26 @@ export default class Toda extends Component {
             editingDisabled: true,
             showModal: false,
             showPortal: false,
+            noteTitle:'',
+            noteText:'',
             noteRequired: false
         }
         this.handleChange = this.handleChange.bind(this);
         this.toggleEditing = this.toggleEditing.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.updateInput=this.updateInput.bind(this);
 
         this.sendNote = ev => {
             ev.preventDefault();
             this.socket.emit('ADD_NOTE', {
-                title: "Test",
-                text: "Something, something"
+                title: this.state.noteTitle,
+                text: this.state.noteText
             });
             this.setState({message: ''});
         };
 
-        this.socket.on('RECEIVE_NOTE', function(data){
-            addNote(data);
+        this.socket.on('UPDATE_NOTES', function(data){
+            setNotes(data);
         });
 
         this.socket.on('INITIAL_NOTES', function(data){
@@ -77,6 +80,12 @@ export default class Toda extends Component {
             });
         }
 
+    }
+
+    updateInput(e){
+        this.setState({
+            [e.target.name]: e.target.value
+        });
     }
 
     handleClose(){
@@ -154,12 +163,13 @@ export default class Toda extends Component {
             <form>
                 <div className="form-group">
                     <label for="exampleFormControlInput1">Title</label>
-                    <input type="email" className="form-control" id="exampleFormControlInput1" placeholder="Title of the note"/>
+                    <input type="email" className="form-control" id="exampleFormControlInput1"
+                           onChange={this.updateInput} value={this.state.noteTitle} name="noteTitle" placeholder="Title of the note"/>
                 </div>
                 <div className="form-group">
                     <label for="exampleFormControlTextarea1">Content</label>
                     <textarea className="form-control" id="exampleFormControlTextarea1"
-                              rows="3" placeholder="Your note.."
+                              rows="3" placeholder="Your note.." name="noteText" onChange={this.updateInput} value={this.state.noteText}
                               ref={(input) => { this.textInput = input; }}/>
                 </div>
                 <button type="submit" onClick={this.sendNote} className="btn btn-success">Add</button>

@@ -58,8 +58,53 @@ io.on('connection', (socket) => {
     }
     //console.log("hello");
     socket.on('ADD_NOTE', function (data) {
-        io.emit('RECEIVE_NOTE', data);
-    })
+        //io.emit('RECEIVE_NOTE', data);
+        console.log(data.title);
+        notes.push(data);
+        var addQuery = 'INSERT INTO todanotes (title, text) VALUES (?,?)';
+        db.query(addQuery,[data.title,data.text] , function(err) {
+            if (err) throw err;
+        });
+        io.emit('UPDATE_NOTES', notes);
+    });
+
+    socket.on('GET_STORY', function (data) {
+        var story= {id: 0, title: '', date: '', patient: ''};
+        var pages=[];
+        var query = 'SELECT * FROM story WHERE idStory=?';
+        db.query(query, data.storyid , function(err, rows) {
+            if (err) throw err;
+            if(rows.length === 0 || rows.length >1) {
+                console.log('error');
+            } else {
+                    var row = rows[0];
+                    story.id=row.idStory;
+                    story.title=row.title;
+                    story.date=row.date;
+                    story.patient=row.patient;
+                io.emit('INITIAL_STORY_STATE', story);
+            }
+        });
+        /*
+        query='SELECT * FROM storypages WHERE story=?';
+        db.query(query, data.storyid , function(err, rows) {
+            if (err) throw err;
+            if(rows.length === 0) {
+                console.log('error');
+            } else {
+                for(var i=0; i<rows.length; i++)
+                {
+                    var row = rows[i];
+                    var page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
+                    story.id = row.idStory;
+                    story.title = row.title;
+                    story.date = row.date;
+                    story.patient = row.patient;
+                }
+                //io.emit('INITIAL_STORY_STATE', story);
+            }
+        });*/
+    });
 
     socket.on('tryLoggingIn', function (data) {
         var query = 'SELECT * FROM user where email = ? and password = ?';

@@ -14,12 +14,15 @@ import Nav from "../components/Nav";
 import LibraryPageThumbnail from "../components/LibraryPageThumbnail";
 import LibraryImageThumbnail from "../components/LibraryImageThumbnail";
 import Portal from '../Portal';
+import io from "socket.io-client";
 
 export default class StoryEditor extends Component {
     constructor(props) {
         super(props);
         //remember to connect this to back-end:
+        this.socket = io('localhost:8080');
         this.state = {
+            story: {id:0, title:'', date:'', patient:''},
             pages: [
                 {
                     id: 1,
@@ -86,6 +89,7 @@ export default class StoryEditor extends Component {
             pageToAddTo:1,
             imageToAdd:null
         };
+
         this.handleSelect = this.handleSelect.bind(this);
         this.updateTextValue = this.updateTextValue.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
@@ -104,7 +108,27 @@ export default class StoryEditor extends Component {
         this.handleSelectChange=this.handleSelectChange.bind(this);
         this.addInspectedPage=this.addInspectedPage.bind(this);
         this.addInspectedImage=this.addInspectedImage.bind(this);
+        //this.componentDidMount=this.componentDidMount.bind(this);
+
+        const setStory = data => {
+            //console.log(data);
+            this.setState({story:data});
+            //console.log(this.state.notes);
+        };
     }
+
+    componentDidMount(){
+        this.socket.emit('GET_STORY', {
+            storyid: 1
+        });
+
+        this.socket.on('INITIAL_STORY_STATE', function(data){
+            this.setState({
+                story:data
+            });
+        }.bind(this));
+    }
+
 
     addExistingImage(e){
         //alert(e.currentTarget.dataset.id);
@@ -558,7 +582,7 @@ export default class StoryEditor extends Component {
                             <form>
                                 <div class="form-group row">
                                     <div class="col-sm-6">
-                                        <input type="email" class="form-control form-control-sm" id="colFormLabelSm" placeholder="Title of the story"/>
+                                        <input type="email" value={this.state.story.title} class="form-control form-control-sm" id="colFormLabelSm" placeholder="Title of the story"/>
                                     </div>
                                 </div>
                             </form>
