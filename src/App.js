@@ -42,7 +42,7 @@ class App extends Component {
         };
 
         return (
-            <div className="App container">
+            <div className="App container-fluid">
                 <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
                     <a className="navbar-brand" href="#">SatD</a>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

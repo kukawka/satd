@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
     //console.log("hello");
     socket.on('ADD_NOTE', function (data) {
         //io.emit('RECEIVE_NOTE', data);
-        console.log(data.title);
+        //console.log(data.title);
         notes.push(data);
         var addQuery = 'INSERT INTO todanotes (title, text) VALUES (?,?)';
         db.query(addQuery,[data.title,data.text] , function(err) {
@@ -68,10 +68,30 @@ io.on('connection', (socket) => {
         io.emit('UPDATE_NOTES', notes);
     });
 
+    socket.on('ADD_TEMPLATE_PAGE', function (data) {
+        let newPageID = 0;
+        let addQuery = 'INSERT INTO page (title, text, imageTitle, notes, isWorrying) VALUES (?,?,?,?,?)';
+        db.query(addQuery, [data.page.title, data.page.text, data.page.imageTitle, data.page.notes, false], function (err) {
+            if (err) throw err;
+        });
+        let checkQuery = 'SELECT MAX(idpage) as id from page;';
+        db.query(checkQuery)
+            .on('result', function (data) {
+                //console.log(data.id);
+                newPageID = data.id;
+            })
+            .on('end', function () {
+                addQuery = 'INSERT INTO storypages (story, page, pageNo) VALUES (?,?,?)';
+                db.query(addQuery, [data.storyno, newPageID, data.page.id], function (err) {
+                    if (err) throw err;
+                });
+            });
+    });
+
     socket.on('GET_STORY', function (data) {
-        var story= {id: 0, title: '', date: '', patient: ''};
-        var pages=[];
-        var query = 'SELECT * FROM story WHERE idStory=?';
+        let story= {id: 0, title: '', date: '', patient: ''};
+        let pages=[];
+        let query = 'SELECT * FROM story WHERE idStory=?';
         db.query(query, data.storyid , function(err, rows) {
             if (err) throw err;
             if(rows.length === 0 || rows.length >1) {
@@ -82,28 +102,32 @@ io.on('connection', (socket) => {
                     story.title=row.title;
                     story.date=row.date;
                     story.patient=row.patient;
-                io.emit('INITIAL_STORY_STATE', story);
+                //io.emit('INITIAL_STORY_STATE', story);
             }
         });
-        /*
-        query='SELECT * FROM storypages WHERE story=?';
+
+        query='SELECT pageNo, page.title, page.imageTitle, page.text, page.notes, page.isWorrying FROM storypages JOIN page on storypages.page=page.idpage WHERE story=?';
         db.query(query, data.storyid , function(err, rows) {
             if (err) throw err;
             if(rows.length === 0) {
                 console.log('error');
             } else {
-                for(var i=0; i<rows.length; i++)
+                for(let i=0; i<rows.length; i++)
                 {
-                    var row = rows[i];
-                    var page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
-                    story.id = row.idStory;
-                    story.title = row.title;
-                    story.date = row.date;
-                    story.patient = row.patient;
+                    let row = rows[i];
+
+                    let page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
+                    page.id=row.pageNo ;
+                    page.title=row.title;
+                    page.text=row.text;
+                    page.imageTitle=row.imageTitle;
+                    page.notes=row.notes;
+                    page.isWorrying=row.isWorrying;
+                    pages.push(page);
                 }
-                //io.emit('INITIAL_STORY_STATE', story);
+                io.emit('INITIAL_STORY_STATE', story, pages);
             }
-        });*/
+        });
     });
 
     socket.on('tryLoggingIn', function (data) {

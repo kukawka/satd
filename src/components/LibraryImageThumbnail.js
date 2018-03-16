@@ -7,15 +7,12 @@ export default class LibraryImageThumbnail extends React.Component {
             marginRight: "3px"
         };
 
-        var imageStyle = {
-            maxHeight: "90px",
-            width: "auto"
-        };
         return (
             <div className="card">
                 <img src={require('../images/' + this.props.image.path + '.jpg')} alt="No image assigned yet."
-                     className="card-img-top" style={imageStyle}/>
+                     className="card-img-top"/>
                 <div className="card-body">
+                    <div class="d-flex justify-content-center">
                     <button onClick={this.props.onViewClick}
                             className="btn btn-info"
                             role="button" data-id={this.props.image.id} style={marginRight}>
@@ -24,7 +21,8 @@ export default class LibraryImageThumbnail extends React.Component {
                             className="btn btn-success"
                             role="button" data-id={this.props.image.id}>
                         <Glyphicon glyph="add"/></button>
-                </div>
+                    </div>
+                    </div>
             </div>
         );
     }

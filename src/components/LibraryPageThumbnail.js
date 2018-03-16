@@ -21,7 +21,7 @@ export default class LibraryPageThumbnail extends React.Component {
                     <img src={require('../images/' + this.props.page.imageTitle + '.jpg')} alt="No image assigned yet."
                          className="card-img-top"/>
                 <div className="card-body">
-                    <small>{this.props.page.title}</small>
+                    {this.props.page.title}
                     <div class="d-flex justify-content-center">
                             <button className="btn btn-info" role="button" data-id={this.props.page.id}
                                     onClick={this.props.onViewClick} style={paddingRight}>

@@ -14,10 +14,6 @@ export default class ExistingPageThumbnail extends React.Component {
             marginTop: "10px"
         };
 
-        var smallMarginTop = {
-            marginTop: "5px"
-        };
-
         return (
             <div className="card" style={marginTop}>
 
