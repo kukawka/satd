@@ -68,6 +68,19 @@ io.on('connection', (socket) => {
         io.emit('UPDATE_NOTES', notes);
     });
 
+    socket.on('UPDATE_PAGE', function (data) {
+        let updateQuery = 'UPDATE page set title=?, text=?, imageTitle=?, notes=?, isWorrying=? where idpage=?';
+        db.query(updateQuery, [data.pageTitle, data.pageText, data.pageImageTitle, data.pageNotes, false, data.pageDBID], function (err) {
+            if (err) throw err;
+            else{
+                console.log('success');
+            }
+        });
+    });
+
+    /*socket.on('UPDATE_STORY_ORDER', function (data) {
+    });*/
+
     socket.on('ADD_TEMPLATE_PAGE', function (data) {
         let newPageID = 0;
         let addQuery = 'INSERT INTO page (title, text, imageTitle, notes, isWorrying) VALUES (?,?,?,?,?)';
@@ -106,7 +119,7 @@ io.on('connection', (socket) => {
             }
         });
 
-        query='SELECT pageNo, page.title, page.imageTitle, page.text, page.notes, page.isWorrying FROM storypages JOIN page on storypages.page=page.idpage WHERE story=?';
+        query='SELECT page.idpage, pageNo, page.title, page.imageTitle, page.text, page.notes, page.isWorrying FROM storypages JOIN page on storypages.page=page.idpage WHERE story=?';
         db.query(query, data.storyid , function(err, rows) {
             if (err) throw err;
             if(rows.length === 0) {
@@ -118,6 +131,7 @@ io.on('connection', (socket) => {
 
                     let page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
                     page.id=row.pageNo ;
+                    page.dbid=row.idpage ;
                     page.title=row.title;
                     page.text=row.text;
                     page.imageTitle=row.imageTitle;

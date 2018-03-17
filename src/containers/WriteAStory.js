@@ -26,15 +26,16 @@ export default class StoryEditor extends Component {
             pages: [
                 {
                     id: 1,
+                    dbid:0,
                     title: 'Come to reception',
                     text: 'You will come to the reception.',
                     imageTitle: 'entrance',
                     isWorrying: false
                 },
-                {id: 2, title: 'Wait in reception', text: '', imageTitle: 'reception', isWorrying: false},
-                {id: 3, title: 'Sit in the chair', text: '', imageTitle: 'chair', isWorrying: false},
-                {id: 4, title: 'Put your hand up to rest', text: '', imageTitle: 'hand', isWorrying: false},
-                {id: 5, title: 'Go back to reception', text: '', imageTitle: 'reception', isWorrying: false}
+                {id: 2, dbid:0,  title: 'Wait in reception', text: '', imageTitle: 'reception', isWorrying: false},
+                {id: 3, dbid:0, title: 'Sit in the chair', text: '', imageTitle: 'chair', isWorrying: false},
+                {id: 4, dbid:0, title: 'Put your hand up to rest', text: '', imageTitle: 'hand', isWorrying: false},
+                {id: 5, dbid:0, title: 'Go back to reception', text: '', imageTitle: 'reception', isWorrying: false}
             ],
             libraryOfImages: [
                 {id: 1, title: 'Reception', description: '', path: 'reception'},
@@ -46,15 +47,16 @@ export default class StoryEditor extends Component {
             libraryOfPages: [
                 {
                     id: 1,
+                    dbid:0,
                     title: 'Tooth drilling',
                     text: 'You will come to the reception.',
                     imageTitle: 'drilling',
                     isWorrying: false
                 },
-                {id: 2, title: 'Teeth cleaning', text: '', imageTitle: 'cleaning', isWorrying: false},
-                {id: 3, title: 'Examination', text: '', imageTitle: 'checkup', isWorrying: false},
-                {id: 4, title: 'Dental extr..', text: '', imageTitle: 'pulling', isWorrying: false},
-                {id: 5, title: 'Teeth Whit..', text: '', imageTitle: 'whitening', isWorrying: false}
+                {id: 2, dbid:0, title: 'Teeth cleaning', text: '', imageTitle: 'cleaning', isWorrying: false},
+                {id: 3, dbid:0, title: 'Examination', text: '', imageTitle: 'checkup', isWorrying: false},
+                {id: 4, dbid:0, title: 'Dental extr..', text: '', imageTitle: 'pulling', isWorrying: false},
+                {id: 5, dbid:0, title: 'Teeth Whit..', text: '', imageTitle: 'whitening', isWorrying: false}
             ],
             initialLibraryOfPages: [
                 {
@@ -69,14 +71,7 @@ export default class StoryEditor extends Component {
                 {id: 4, title: 'Dental extraction', text: '', imageTitle: 'pulling', isWorrying: false},
                 {id: 5, title: 'Teeth Whitening', text: '', imageTitle: 'whitening', isWorrying: false}
             ],
-            currentPage:
-                {
-                    id: 1,
-                    title: 'Come to reception',
-                    text: 'You will come to the reception.',
-                    imageTitle: 'entrance',
-                    isWorrying: false
-                },
+            currentPage:null,
             inspectedPage: null,
             searchedPage: '',
             selectedPagesItem: 3,
@@ -87,12 +82,19 @@ export default class StoryEditor extends Component {
             showInspectImagePortal: false,
             showInspectPagePortal: false,
             pageToAddTo: 1,
-            imageToAdd: null
+            imageToAdd: null,
+            pageText:'',
+            pageTitle:'',
+            pageNotes:'',
+            pageID:0,
+            pageImageTitle: '',
+            pageDBID: 0
+
         };
 
         this.handleSelect = this.handleSelect.bind(this);
-        this.updateTextValue = this.updateTextValue.bind(this);
-        this.handleEdit = this.handleEdit.bind(this);
+        //this.updateTextValue = this.updateTextValue.bind(this);
+        this.chooseToEdit = this.chooseToEdit.bind(this);
         this.addNewPage = this.addNewPage.bind(this);
         this.moveDown = this.moveDown.bind(this);
         this.moveUp = this.moveUp.bind(this);
@@ -109,6 +111,7 @@ export default class StoryEditor extends Component {
         this.addInspectedTemplatePage = this.addInspectedTemplatePage.bind(this);
         this.addInspectedImage = this.addInspectedImage.bind(this);
         //this.componentDidMount=this.componentDidMount.bind(this);
+        this.updateInput=this.updateInput.bind(this);
 
         const setStory = data => {
             //console.log(data);
@@ -213,12 +216,18 @@ export default class StoryEditor extends Component {
             {libraryOfPages: this.state.initialLibraryOfPages});
     }
 
-    handleEdit(e) {
+    chooseToEdit(e) {
         //alert(e.currentTarget.dataset.id);
-        var currentPage = e.currentTarget.dataset.id - 1;
+        var currentPage = this.state.pages[e.currentTarget.dataset.id - 1];
         //alert(currentPage);
         this.setState({
-            currentPage: this.state.pages[currentPage]
+            pageText:currentPage.text,
+            pageTitle:currentPage.title,
+            pageNotes: currentPage.notes,
+            pageID: currentPage.id,
+            pageImageTitle: currentPage.imageTitle,
+            pageDBID: currentPage.dbid,
+            currentPage: currentPage
         });
     }
 
@@ -335,16 +344,23 @@ export default class StoryEditor extends Component {
         }
     }
 
-    updateTextValue(evt) {
+    updateInput(e){
         this.setState({
-            currentPage: {
-                text: evt.target.value
-            }
+            [e.target.name]: e.target.value
         });
+
+        this.socket.emit('UPDATE_PAGE',{
+            pageText: this.state.pageText,
+            pageTitle: this.state.pageTitle,
+            pageNotes: this.state.pageNotes,
+            pageImageTitle: this.state.pageImageTitle,
+            pageDBID: this.state.pageDBID
+        });
+        //this.render();
     }
 
     render() {
-        var charactersLeft = 100 - this.state.currentPage.text.length;
+        var charactersLeft = 100 - this.state.pageText.length;
 
         //styles
         var imgStyle = {
@@ -398,7 +414,7 @@ export default class StoryEditor extends Component {
 
         const existingPages = this.state.pages.map((page) =>
             <ExistingPageThumbnail key={page.id} page={page}
-                                   onEditClick={this.handleEdit} onDeleteClick={this.handleDelete}
+                                   onEditClick={this.chooseToEdit} onDeleteClick={this.handleDelete}
                                    onMoveUp={this.moveUp} onMoveDown={this.moveDown}/>
         );
 
@@ -418,11 +434,11 @@ export default class StoryEditor extends Component {
 
         let active = 7;
         let items = [];
-        for (let number = 1; number <= this.state.pages.length; number++) {
+        /*for (let number = 1; number <= this.state.pages.length; number++) {
             items.push(
                 <li className={this.state.currentPage.id == number ? "page-item active" : "page-item"}
                     data-id={number}
-                    onClick={this.handleEdit}>
+                    onClick={this.chooseToEdit}>
                     <a class="page-link" href="#">{number}</a></li>
             );
         }
@@ -437,7 +453,7 @@ export default class StoryEditor extends Component {
                     </ul>
                 </div>
             </nav>
-        );
+        );*/
 
         const pageEditor = (
             <div className="card">
@@ -446,26 +462,27 @@ export default class StoryEditor extends Component {
                     <p><Glyphicon glyph="save"> All changes saved.</Glyphicon></p>
                 </div>
                 <div className="card-body" style={pageEditorStyle}>
+                    {this.state.currentPage!=null?[
                     <div class="d-flex justify-content-center">
                         <img
-                            src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
+                            src={require('../images/' + this.state.pageImageTitle + '.jpg')}
                             alt="Choose an image from the 'Images' tab"
                             style={imgStyle} className="card-img-top"/>
-                    </div>
+                    </div>,
                     <form style={marginAtTop}>
                         <div class="form-group row" style={marginAtTop}>
                             <label class="col-sm-3 col-form-label"><strong>Page Title</strong></label>
                             <div class="col-sm-9">
-                                <input type="text" className="form-control" id="pageTitle"
-                                       placeholder="Add the title" value={this.state.currentPage.title}/>
+                                <input type="text" className="form-control" name="pageTitle"
+                                       placeholder="Add the title" value={this.state.pageTitle} onChange={this.updateInput}/>
                             </div>
                         </div>
                         <div className="form-group row">
                             <label class="col-sm-3 col-form-label"><strong>Page Story</strong></label>
                             <div class="col-sm-9">
-                            <textarea className="form-control" value={this.state.currentPage.text}
+                            <textarea className="form-control" name="pageText" value={this.state.pageText}
                                       placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateTextValue}/>
+                                      maxLength="100" onChange={this.updateInput}/>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">
@@ -474,12 +491,14 @@ export default class StoryEditor extends Component {
                         <div className="form-group row">
                             <label class="col-sm-3 col-form-label"><strong>Notes</strong></label>
                             <div class="col-sm-9">
-                            <textarea className="form-control" value={this.state.currentPage.text}
+                            <textarea className="form-control" name="pageNotes" value={this.state.pageNotes}
                                       placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateTextValue}/>
+                                      maxLength="100" onChange={this.updateInput}/>
                             </div>
                         </div>
-                    </form>
+                    </form> ]:[
+                        <p> Choose a page to edit.</p>
+                        ]}
 
                 </div>
             </div>
@@ -508,7 +527,7 @@ export default class StoryEditor extends Component {
                             <label><strong>Page Story</strong></label>
                             <textarea className="form-control" value={this.state.inspectedPage.text}
                                       placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateTextValue} disabled={true}/>
+                                      maxLength="100" disabled={true}/>
                         </div>
                         <div className="d-flex justify-content-end">
                             {charactersLeft}/100
