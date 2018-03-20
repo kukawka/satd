@@ -23,20 +23,7 @@ export default class StoryEditor extends Component {
         this.socket = io('localhost:8080');
         this.state = {
             story: {id: 0, title: '', date: '', patient: ''},
-            pages: [
-                {
-                    id: 1,
-                    dbid:0,
-                    title: 'Come to reception',
-                    text: 'You will come to the reception.',
-                    imageTitle: 'entrance',
-                    isWorrying: false
-                },
-                {id: 2, dbid:0,  title: 'Wait in reception', text: '', imageTitle: 'reception', isWorrying: false},
-                {id: 3, dbid:0, title: 'Sit in the chair', text: '', imageTitle: 'chair', isWorrying: false},
-                {id: 4, dbid:0, title: 'Put your hand up to rest', text: '', imageTitle: 'hand', isWorrying: false},
-                {id: 5, dbid:0, title: 'Go back to reception', text: '', imageTitle: 'reception', isWorrying: false}
-            ],
+            pages: [],
             libraryOfImages: [
                 {id: 1, title: 'Reception', description: '', path: 'reception'},
                 {id: 2, title: 'Chair', description: '', path: 'chair'},
@@ -72,6 +59,7 @@ export default class StoryEditor extends Component {
                 {id: 5, title: 'Teeth Whitening', text: '', imageTitle: 'whitening', isWorrying: false}
             ],
             currentPage:null,
+            currentPageID:0,
             inspectedPage: null,
             searchedPage: '',
             selectedPagesItem: 3,
@@ -112,6 +100,7 @@ export default class StoryEditor extends Component {
         this.addInspectedImage = this.addInspectedImage.bind(this);
         //this.componentDidMount=this.componentDidMount.bind(this);
         this.updateInput=this.updateInput.bind(this);
+        this.updateTitle=this.updateTitle.bind(this);
 
         const setStory = data => {
             //console.log(data);
@@ -152,14 +141,21 @@ export default class StoryEditor extends Component {
     }
 
     handleAddImage() {
-        var modifiedPages = this.state.pages;
-        modifiedPages[this.state.pageToAddTo - 1].imageTitle = this.state.imageToAdd.path;
+        var allPages = this.state.pages;
+        let imageTitle = this.state.imageToAdd.path;
+        let pageID=this.state.pageToAddTo;
+        let pageDBID=allPages[pageID-1].dbid;
         this.setState({
-            pages: modifiedPages,
-            currentPage: modifiedPages[this.state.pageToAddTo - 1],
+            /*pages: modifiedPages,
+            currentPage: modifiedPages[this.state.pageToAddTo - 1],*/
             pageToAddTo: 1,
             imageToAdd: null,
             showAddImagePortal: !this.state.showAddImagePortal
+        });
+
+        this.socket.emit('UPDATE_IMAGE',{
+            pageDBID:pageDBID,
+            imageTitle: imageTitle
         });
     }
 
@@ -227,21 +223,22 @@ export default class StoryEditor extends Component {
             pageID: currentPage.id,
             pageImageTitle: currentPage.imageTitle,
             pageDBID: currentPage.dbid,
-            currentPage: currentPage
+            currentPage: currentPage,
+            currentPageID: e.currentTarget.dataset.id-1
         });
     }
 
     handleDelete(e) {
-        var reducedSet = this.state.pages;
+        let reducedSet = this.state.pages;
+        let toDelete=reducedSet[e.currentTarget.dataset.id - 1].dbid;
         reducedSet.splice(e.currentTarget.dataset.id - 1, 1);
         //alert(e.currentTarget.dataset.id);
 
-        // if the page is not the last on the list
-        if (e.currentTarget.dataset.id <= reducedSet.length) {
-            for (var i = (e.currentTarget.dataset.id - 1); i < reducedSet.length; i++) {
-                reducedSet[i].id -= 1;
-            }
-        }
+        this.socket.emit('DELETE_PAGE',{
+            pageNo:e.currentTarget.dataset.id,
+            pageDBID:toDelete
+        });
+
         this.setState({
             pages: reducedSet
         });
@@ -258,6 +255,12 @@ export default class StoryEditor extends Component {
             newOrder[e.currentTarget.dataset.id - 2] = pageToMoveUp;
             this.setState({
                 pages: newOrder
+            });
+            this.socket.emit('REORDER_PAGES',{
+                pageDownID: pageToMoveDown.id,
+                pageDownDBID: pageToMoveDown.dbid,
+                pageUpID: pageToMoveUp.id,
+                pageUPDBID: pageToMoveUp.dbid
             });
         }
         else {
@@ -277,6 +280,12 @@ export default class StoryEditor extends Component {
             newOrder[e.currentTarget.dataset.id] = pageToMoveDown;
             this.setState({
                 pages: newOrder
+            });
+            this.socket.emit('REORDER_PAGES',{
+                pageDownID: pageToMoveDown.id,
+                pageDownDBID: pageToMoveDown.dbid,
+                pageUpID: pageToMoveUp.id,
+                pageUPDBID: pageToMoveUp.dbid
             });
         }
         else {
@@ -322,6 +331,10 @@ export default class StoryEditor extends Component {
             showInspectPagePortal: false
         });
         this.state.pages.push(pageToAdd);
+        this.socket.emit('ADD_TEMPLATE_PAGE', {
+            page: pageToAdd,
+            storyno:1
+        });
     }
 
     inspectPage(e) {
@@ -357,6 +370,17 @@ export default class StoryEditor extends Component {
             pageDBID: this.state.pageDBID
         });
         //this.render();
+    }
+
+    updateTitle(){
+        var ep = this.state.pages;
+        // ep[this.state.currentPageID].text= this.state.pageText;
+        ep[this.state.currentPageID].title=this.state.pageTitle;
+        //ep[this.state.currentPageID].notes= this.state.pageNotes;
+
+        this.setState({
+            pages: ep
+        });
     }
 
     render() {
@@ -412,7 +436,9 @@ export default class StoryEditor extends Component {
             </ul>
         );
 
-        const existingPages = this.state.pages.map((page) =>
+        const existingPages = this.state.pages
+            .sort((a,b) => a.id - b.id)
+            .map((page) =>
             <ExistingPageThumbnail key={page.id} page={page}
                                    onEditClick={this.chooseToEdit} onDeleteClick={this.handleDelete}
                                    onMoveUp={this.moveUp} onMoveDown={this.moveDown}/>
@@ -465,7 +491,7 @@ export default class StoryEditor extends Component {
                     {this.state.currentPage!=null?[
                     <div class="d-flex justify-content-center">
                         <img
-                            src={require('../images/' + this.state.pageImageTitle + '.jpg')}
+                            src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
                             alt="Choose an image from the 'Images' tab"
                             style={imgStyle} className="card-img-top"/>
                     </div>,
@@ -474,7 +500,7 @@ export default class StoryEditor extends Component {
                             <label class="col-sm-3 col-form-label"><strong>Page Title</strong></label>
                             <div class="col-sm-9">
                                 <input type="text" className="form-control" name="pageTitle"
-                                       placeholder="Add the title" value={this.state.pageTitle} onChange={this.updateInput}/>
+                                       placeholder="Add the title" value={this.state.pageTitle} onChange={this.updateInput} onBlur={this.updateTitle}/>
                             </div>
                         </div>
                         <div className="form-group row">
@@ -610,11 +636,13 @@ export default class StoryEditor extends Component {
                 >
                     {pageInspector}
                 </Portal>
-                <div className="row" style={buttonsWell}>
-                    <Col xs={12} md={6}>
+                <div class="card">
+                    <div class="card-body">
+                <div className="row">
+                    <Col xs={12} md={8}>
                         <form>
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Story Title</label>
+                                <label class="col-sm-2">Story Title</label>
                                 <div class="col-sm-6">
                                     <input type="email" value={this.state.story.title}
                                            class="form-control form-control-sm" id="colFormLabelSm"
@@ -622,9 +650,9 @@ export default class StoryEditor extends Component {
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Story Title</label>
+                                <label class="col-sm-2 col-form-label">Patient</label>
                                 <div class="col-sm-6">
-                                    <input type="email" value={this.state.story.title}
+                                    <input type="email" value={this.state.story.patient}
                                            class="form-control form-control-sm" id="colFormLabelSm"
                                            placeholder="Title of the story"/>
                                 </div>
@@ -636,13 +664,10 @@ export default class StoryEditor extends Component {
                             TODA</Glyphicon></a>
                     </Col>
                     <Col xs={12} md={2}>
-                        <a class="btn btn-large btn-success" href="/toda" block><Glyphicon glyph="save"> Finish
-                            Story</Glyphicon></a>
+                        <a class="btn btn-large btn-success" href="/toda" block><Glyphicon glyph="save"> Finish Editing</Glyphicon></a>
                     </Col>
-                    <Col xs={12} md={2}>
-                        <a class="btn btn-large btn-danger" href="/toda" block><Glyphicon glyph="bin"> Discard
-                            Story</Glyphicon></a>
-                    </Col>
+                </div>
+                    </div>
                 </div>
                 <Row>
                     <Col xs={12} md={3}>

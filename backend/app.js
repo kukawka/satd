@@ -78,8 +78,50 @@ io.on('connection', (socket) => {
         });
     });
 
-    /*socket.on('UPDATE_STORY_ORDER', function (data) {
-    });*/
+    socket.on('UPDATE_IMAGE', function (data) {
+        let updateQuery = 'UPDATE page set imageTitle=? where idpage=?';
+        db.query(updateQuery, [data.imageTitle, data.pageDBID], function (err) {
+            if (err) throw err;
+            else{
+                console.log('success');
+            }
+        });
+    });
+
+
+
+    socket.on('DELETE_PAGE', function (data) {
+        let deleteQuery = 'DELETE FROM storypages where page=? AND pageNo=?';
+        db.query(deleteQuery, [data.pageDBID, data.pageNo], function (err) {
+            if (err) throw err;
+            else{
+                //console.log(data.pageNo+ ' '+ data.pageDBID );
+                console.log('success deleting');
+            }
+        });
+    });
+
+    socket.on('REORDER_PAGES', function (data) {
+        let success=0;
+        let updateQuery = 'UPDATE storypages set pageNo =? where page=? AND story=?';
+        db.query(updateQuery, [data.pageDownID, data.pageDownDBID, 1], function (err) {
+            if (err) throw err;
+            else{
+                //console.log('success');
+                success=+1;
+            }
+        });
+        db.query(updateQuery, [data.pageUpID, data.pageUPDBID,1], function (err) {
+            if (err) throw err;
+            else{
+                //console.log('success');
+                success=+1;
+            }
+        });
+        if(success>=2){
+            console.log('success reordering');
+        }
+    });
 
     socket.on('ADD_TEMPLATE_PAGE', function (data) {
         let newPageID = 0;
