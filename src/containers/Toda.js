@@ -109,6 +109,11 @@ export default class Toda extends Component {
             marginLeft: 2
         };
 
+        var notesContainer = {
+            height: 700,
+            overflow: "scroll"
+        };
+
         var marginAtTop = {
             marginTop: 10
         };
@@ -206,7 +211,7 @@ export default class Toda extends Component {
                             <div className="card-header">
                                 Notes
                             </div>
-                            <div className="card-body">
+                            <div className="card-body" style={notesContainer}>
                                 {notesForm}
                                 <hr/>
                                 {existingNotes}
@@ -216,7 +221,7 @@ export default class Toda extends Component {
                     <Col xs={12} md={8}>
                         <Well>
                             <div class="d-flex justify-content-end">
-                                <button type="button" class="btn btn-secondary" style={marginRight}>
+                                <button type="button" class="btn btn-secondary" style={marginRight} disabled={true}>
                                     <div class="d-flex justify-content-end">
                                         <Glyphicon glyph="history"> View History</Glyphicon>
                                     </div>

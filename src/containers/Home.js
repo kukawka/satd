@@ -12,18 +12,10 @@ export default class Home extends Component {
             alignSelf:"flex-end"
         };
         return (
-            <Container>
+            <div className="container">
                 <Row className="show-grid">
-                    <Col xs={12} md={3}>
-                        <div class="list-group">
-                            <button type="button" className="list-group-item list-group-item-action active">
-                                Home
-                            </button>
-                            <button type="button" className="list-group-item list-group-item-action">Story Editor</button>
-                            <button type="button" className="list-group-item list-group-item-action">Library</button>
-                        </div>
-                    </Col>
-                    <Col xs={6} md={9}>
+                    <Col xs={6} md={1}></Col>
+                    <Col xs={6} md={10}>
                         <div class="card">
                             <div class="card-header">
                                 To do
@@ -33,19 +25,19 @@ export default class Home extends Component {
                                     <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1">Write a Story</h5>
-                                            <small>Monday, 19th March</small>
+                                            <small>Monday, 26th March</small>
                                         </div>
                                         <div class="d-flex w-100 justify-content-between">
-                                        <p class="mb-1">Teeth Cleaning for Susan Smith</p>
-                                            <Button bsStyle="outline-success">
+                                        <p class="mb-1">Tooth Drilling for Susan Smith</p>
+                                            <a className="btn btn-outline-success" href="/newstory">
                                                 Write now
-                                            </Button>
+                                            </a>
                                         </div>
                                     </a>
                                     <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1">Write a Story</h5>
-                                            <small>Thursday, 22nd March</small>
+                                            <small>Thursday, 29th March</small>
                                         </div>
                                         <div class="d-flex w-100 justify-content-between">
                                             <p class="mb-1">Check-up for Tom Brown</p>
@@ -58,8 +50,9 @@ export default class Home extends Component {
                             </div>
                         </div>
                     </Col>
+                    <Col xs={6} md={1}></Col>
                 </Row>
-            </Container>
+            </div>
         );
     }
 }

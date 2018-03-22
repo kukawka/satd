@@ -16,14 +16,13 @@ export default class StoryLibrary extends Component {
         //remember to connect this to back-end:
         this.state = {
             stories: [
-            {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
-            {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
+            {id: 1, title: 'Annual check-up', date: '14.03.2018', patient: 'Tommy White'}
         ],
             initialStoriesSet: [
-                {id: 1, title: 'Check-up', date: '20.12.2017', patient: 'Susan Smith'},
-                {id: 2, title: 'Teeth Whitening', date: '08.10.2017', patient: 'Tom Mitchell'}
+                {id: 1, title: 'Annual check-up', date: '14.03.2018', patient: 'Tommy White'}
             ],
-            searchedPhrase: ''
+            searchedPhrase: '',
+            //title: this.props.title
         };
 
         //bind methods for the searchbox
@@ -65,6 +64,7 @@ export default class StoryLibrary extends Component {
 
 
     render() {
+        //alert(this.props.title);
 
         //render all stories
             const listOfAll = this.state.stories.map((story) =>
@@ -75,17 +75,6 @@ export default class StoryLibrary extends Component {
 
         return (
                 <Container>
-                    <Well>
-                        <Row className="show-grid">
-                            <Col xs={12} md={10}>
-                            </Col>
-                            <Col xs={12} md={2}>
-                                    <Button bsStyle="success" bsSize="large">
-                                        <Glyphicon glyph="pencil"> New Story</Glyphicon>
-                                    </Button>
-                            </Col>
-                        </Row>
-                    </Well>
                     <Well id="toolbar">
                         <Row>
                             <Col xs={12} md={1}>

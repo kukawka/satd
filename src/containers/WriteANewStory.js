@@ -17,7 +17,7 @@ import LibraryImageThumbnail from "../components/LibraryImageThumbnail";
 import Portal from '../Portal';
 import io from "socket.io-client";
 
-export default class StoryEditor extends Component {
+export default class WriteANewStory extends Component {
     constructor(props) {
         super(props);
         //remember to connect this to back-end:
@@ -76,7 +76,6 @@ export default class StoryEditor extends Component {
             showInspectImagePortal: false,
             showInspectPagePortal: false,
             showConfirmDeletePortal:false,
-            showConfirmFinishPortal: false,
 
             pageToAddTo: 1,
             imageToAdd: null,
@@ -99,10 +98,6 @@ export default class StoryEditor extends Component {
         this.moveUp = this.moveUp.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.chooseToDelete=this.chooseToDelete.bind(this);
-
-        this.confirmFinish=this.confirmFinish.bind(this);
-        this.handleFinish=this.handleFinish.bind(this);
-
         this.addTemplatePage = this.addTemplatePage.bind(this);
         this.inspectPage = this.inspectPage.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
@@ -118,6 +113,10 @@ export default class StoryEditor extends Component {
         this.updateInput=this.updateInput.bind(this);
         this.updateTitle=this.updateTitle.bind(this);
 
+
+        this.confirmFinish=this.confirmFinish.bind(this);
+        this.handleFinish=this.handleFinish.bind(this);
+
         const setStory = data => {
             //console.log(data);
             this.setState({story: data});
@@ -127,7 +126,7 @@ export default class StoryEditor extends Component {
 
     componentDidMount() {
         this.socket.emit('GET_STORY', {
-            storyid: 1
+            storyid: 2
         });
 
         this.socket.on('INITIAL_STORY_STATE', function (data1, data2) {
@@ -200,10 +199,10 @@ export default class StoryEditor extends Component {
             showAddImagePortal: false,
             showInspectImagePortal: false,
             showInspectPagePortal: false,
-            showConfirmDeletePortal: false,
-            showConfirmFinishPortal:false
+            showConfirmDeletePortal: false
         });
     }
+
     getInitialState() {
         return this.state.initialLibraryOfPages;
     }
@@ -258,9 +257,9 @@ export default class StoryEditor extends Component {
 
     chooseToDelete(e){
         this.setState({
-                pageToDelete: e.currentTarget.dataset.id,
-                showConfirmDeletePortal: true
-            });
+            pageToDelete: e.currentTarget.dataset.id,
+            showConfirmDeletePortal: true
+        });
     }
 
     handleDelete() {
@@ -373,7 +372,7 @@ export default class StoryEditor extends Component {
         this.state.pages.push(pageToAdd);
         this.socket.emit('ADD_TEMPLATE_PAGE', {
             page: pageToAdd,
-            storyno:1
+            storyno:2
         });
     }
 
@@ -479,10 +478,10 @@ export default class StoryEditor extends Component {
         const existingPages = this.state.pages
             .sort((a,b) => a.id - b.id)
             .map((page) =>
-            <ExistingPageThumbnail key={page.id} page={page}
-                                   onEditClick={this.chooseToEdit} onDeleteClick={this.chooseToDelete}
-                                   onMoveUp={this.moveUp} onMoveDown={this.moveDown}/>
-        );
+                <ExistingPageThumbnail key={page.id} page={page}
+                                       onEditClick={this.chooseToEdit} onDeleteClick={this.chooseToDelete}
+                                       onMoveUp={this.moveUp} onMoveDown={this.moveDown}/>
+            );
 
         const libraryPages = this.state.libraryOfPages.map((page) =>
             <div class="p-3">
@@ -529,42 +528,42 @@ export default class StoryEditor extends Component {
                 </div>
                 <div className="card-body" style={pageEditorStyle}>
                     {this.state.currentPage!=null?[
-                    <div class="d-flex justify-content-center">
-                        <img
-                            src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
-                            alt="Choose an image from the 'Images' tab"
-                            style={imgStyle} className="card-img-top"/>
-                    </div>,
-                    <form style={marginAtTop}>
-                        <div class="form-group row" style={marginAtTop}>
-                            <label class="col-sm-3 col-form-label"><strong>Page Title</strong></label>
-                            <div class="col-sm-9">
-                                <input type="text" className="form-control" name="pageTitle"
-                                       placeholder="Add the title" value={this.state.pageTitle} onChange={this.updateInput} onBlur={this.updateTitle}/>
+                        <div class="d-flex justify-content-center">
+                            <img
+                                src={require('../images/' + this.state.currentPage.imageTitle + '.jpg')}
+                                alt="Choose an image from the 'Images' tab"
+                                style={imgStyle} className="card-img-top"/>
+                        </div>,
+                        <form style={marginAtTop}>
+                            <div class="form-group row" style={marginAtTop}>
+                                <label class="col-sm-3 col-form-label"><strong>Page Title</strong></label>
+                                <div class="col-sm-9">
+                                    <input type="text" className="form-control" name="pageTitle"
+                                           placeholder="Add the title" value={this.state.pageTitle} onChange={this.updateInput} onBlur={this.updateTitle}/>
+                                </div>
                             </div>
-                        </div>
-                        <div className="form-group row">
-                            <label class="col-sm-3 col-form-label"><strong>Page Story</strong></label>
-                            <div class="col-sm-9">
+                            <div className="form-group row">
+                                <label class="col-sm-3 col-form-label"><strong>Page Story</strong></label>
+                                <div class="col-sm-9">
                             <textarea className="form-control" name="pageText" value={this.state.pageText}
                                       placeholder="Text for the page.."
                                       maxLength="100" onChange={this.updateInput}/>
+                                </div>
                             </div>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            {charactersLeft}/100
-                        </div>
-                        <div className="form-group row">
-                            <label class="col-sm-3 col-form-label"><strong>Notes</strong></label>
-                            <div class="col-sm-9">
+                            <div class="d-flex justify-content-end">
+                                {charactersLeft}/100
+                            </div>
+                            <div className="form-group row">
+                                <label class="col-sm-3 col-form-label"><strong>Notes</strong></label>
+                                <div class="col-sm-9">
                             <textarea className="form-control" name="pageNotes" value={this.state.pageNotes}
                                       placeholder="Text for the page.."
                                       maxLength="100" onChange={this.updateInput}/>
+                                </div>
                             </div>
-                        </div>
-                    </form> ]:[
+                        </form> ]:[
                         <p> Choose a page to edit.</p>
-                        ]}
+                    ]}
 
                 </div>
             </div>
@@ -643,7 +642,7 @@ export default class StoryEditor extends Component {
                     cancelButtonText="CANCEL"
                     cancelButton={true}
                 >
-                    <p>You are about to finish editing the story '{this.state.story.title}' for {this.state.story.title}.</p>
+                    <p>You are about to finish the story '{this.state.story.title}' for {this.state.story.title}.</p>
                     <p>All the changes have been saved.</p>
                 </Portal>
                 <Portal
@@ -705,35 +704,35 @@ export default class StoryEditor extends Component {
                 </Portal>
                 <div class="card">
                     <div class="card-body">
-                <div className="row">
-                    <Col xs={12} md={8}>
-                        <form>
-                            <div class="form-group row">
-                                <label class="col-sm-2">Story Title</label>
-                                <div class="col-sm-6">
-                                    <input type="email" value={this.state.story.title}
-                                           class="form-control form-control-sm" id="colFormLabelSm"
-                                           placeholder="Title of the story"/>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Patient</label>
-                                <div class="col-sm-6">
-                                    <input type="email" value={this.state.story.patient}
-                                           class="form-control form-control-sm" id="colFormLabelSm"
-                                           placeholder="Title of the story"/>
-                                </div>
-                            </div>
-                        </form>
-                    </Col>
-                    <Col xs={12} md={2}>
-                        <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts"> View
-                            TODA</Glyphicon></a>
-                    </Col>
-                    <Col xs={12} md={2}>
-                        <a class="btn btn-large btn-success" onClick={this.confirmFinish}  block><Glyphicon glyph="save"> Finish Editing</Glyphicon></a>
-                    </Col>
-                </div>
+                        <div className="row">
+                            <Col xs={12} md={8}>
+                                <form>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2">Story Title</label>
+                                        <div class="col-sm-6">
+                                            <input type="email" value={this.state.story.title}
+                                                   class="form-control form-control-sm" id="colFormLabelSm"
+                                                   placeholder="Title of the story"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Patient</label>
+                                        <div class="col-sm-6">
+                                            <input type="email" value={this.state.story.patient}
+                                                   class="form-control form-control-sm" id="colFormLabelSm"
+                                                   placeholder="Title of the story"/>
+                                        </div>
+                                    </div>
+                                </form>
+                            </Col>
+                            <Col xs={12} md={2}>
+                                <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts"> View
+                                    TODA</Glyphicon></a>
+                            </Col>
+                            <Col xs={12} md={2}>
+                                <a class="btn btn-large btn-success" onClick={this.confirmFinish} block><Glyphicon glyph="save"> Finish Editing</Glyphicon></a>
+                            </Col>
+                        </div>
                     </div>
                 </div>
                 <Row>

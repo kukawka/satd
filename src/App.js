@@ -53,10 +53,7 @@ class App extends Component {
                         <ul className="navbar-nav mr-auto">
                             {this.state.isLoggedIn ? [
                                     <RouteNavItem href="/" name="Home">Home</RouteNavItem>,
-                                    <RouteNavItem href = "/appointments" name="Appointments"> Appointments </RouteNavItem>,
-                                    <RouteNavItem href="/patients" name="Patients">Patients</RouteNavItem>,
-                                    <RouteNavItem className="dropdown-item" href="/writeastory" name="Story Editor">Write A Story</RouteNavItem>,
-                                        <RouteNavItem className="dropdown-item" href="/stories" name="Library">Library</RouteNavItem>
+                                        <RouteNavItem className="dropdown-item" href="/stories" name="Library">Stories</RouteNavItem>
 
                                 ]
                                 :[]}
@@ -73,7 +70,7 @@ class App extends Component {
                 </nav>
 
                 { /* Pass properties regarding the state to routes*/}
-                <Routes stateProps={stateProps} />
+                <Routes stateProps={stateProps}/>
             </div>
         );
     }

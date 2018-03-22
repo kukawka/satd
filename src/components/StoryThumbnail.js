@@ -12,8 +12,8 @@ export default class StoryThumbnail extends React.Component {
                 <p>{this.props.story.date}</p>
                 <p>{this.props.story.patient}</p>
         <p className="card-text">
-            <Button bsStyle="outline-primary"><Glyphicon glyph="view"> View</Glyphicon></Button>
-            <Button bsStyle="outline-success"><Glyphicon glyph="edit"> Edit</Glyphicon></Button>
+            <a className="btn btn-outline-primary"><Glyphicon glyph="view"> View</Glyphicon></a>
+            <a className="btn btn-outline-success"  href="/writeastory"><Glyphicon glyph="edit"> Edit</Glyphicon></a>
         </p>
     </div>
     </div>
