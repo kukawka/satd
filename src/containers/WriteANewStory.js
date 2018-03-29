@@ -16,6 +16,8 @@ import LibraryPageThumbnail from "../components/LibraryPageThumbnail";
 import LibraryImageThumbnail from "../components/LibraryImageThumbnail";
 import Portal from '../Portal';
 import io from "socket.io-client";
+import Preview from "../containers/Preview";
+import FullScreenPortal from '../FullScreenPortal';
 
 export default class WriteANewStory extends Component {
     constructor(props) {
@@ -76,6 +78,7 @@ export default class WriteANewStory extends Component {
             showInspectImagePortal: false,
             showInspectPagePortal: false,
             showConfirmDeletePortal:false,
+            showPreviewPortal: false,
 
             pageToAddTo: 1,
             imageToAdd: null,
@@ -117,6 +120,8 @@ export default class WriteANewStory extends Component {
         this.confirmFinish=this.confirmFinish.bind(this);
         this.handleFinish=this.handleFinish.bind(this);
 
+        this.showPreview=this.showPreview.bind(this);
+
         const setStory = data => {
             //console.log(data);
             this.setState({story: data});
@@ -146,6 +151,12 @@ export default class WriteANewStory extends Component {
     confirmFinish(){
         this.setState({
             showConfirmFinishPortal:true
+        });
+    }
+
+    showPreview(){
+        this.setState({
+            showPreviewPortal:true
         });
     }
 
@@ -199,7 +210,8 @@ export default class WriteANewStory extends Component {
             showAddImagePortal: false,
             showInspectImagePortal: false,
             showInspectPagePortal: false,
-            showConfirmDeletePortal: false
+            showConfirmDeletePortal: false,
+            showPreviewPortal: false
         });
     }
 
@@ -377,7 +389,7 @@ export default class WriteANewStory extends Component {
     }
 
     inspectPage(e) {
-        alert(e.currentTarget.dataset.id);
+        //alert(e.currentTarget.dataset.id);
         var pageToAdd = this.state.libraryOfPages[e.currentTarget.dataset.id - 1];
         //alert(currentPage);
         this.setState({
@@ -633,6 +645,12 @@ export default class WriteANewStory extends Component {
         return (
 
             <Container>
+                <FullScreenPortal
+                    open={this.state.showPreviewPortal}
+                    onClose={this.handleClosePortal}
+                >
+                    <Preview pages={this.state.pages}/>
+                </FullScreenPortal>
                 <Portal
                     open={this.state.showConfirmFinishPortal}
                     header="Confirm Finish"
@@ -705,7 +723,7 @@ export default class WriteANewStory extends Component {
                 <div class="card">
                     <div class="card-body">
                         <div className="row">
-                            <Col xs={12} md={8}>
+                            <Col xs={12} md={6}>
                                 <form>
                                     <div class="form-group row">
                                         <label class="col-sm-2">Story Title</label>
@@ -726,7 +744,10 @@ export default class WriteANewStory extends Component {
                                 </form>
                             </Col>
                             <Col xs={12} md={2}>
-                                <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts"> View
+                                <a class="btn btn-large btn-info" onClick={this.showPreview}><Glyphicon glyph="play"> Preview</Glyphicon></a>
+                            </Col>
+                            <Col xs={12} md={2}>
+                                <a class="btn btn-large btn-warning" href="/toda"><Glyphicon glyph="charts"> View
                                     TODA</Glyphicon></a>
                             </Col>
                             <Col xs={12} md={2}>

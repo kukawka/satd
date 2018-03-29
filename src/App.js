@@ -12,10 +12,12 @@ class App extends Component {
 
         this.userHasLoggedIn=this.userHasLoggedIn.bind(this);
         this.handleLogout=this.handleLogout.bind(this);
+        this.userChoseAStory=this.userChoseAStory.bind(this);
 
         this.state = {
             isLoggedIn: true,
-            isAuthenticating:true
+            isAuthenticating:true,
+            storyno:1
         };
         this.socket = io('localhost:8080');
     }
@@ -25,6 +27,10 @@ class App extends Component {
     userHasLoggedIn = logged => {
         //alert(logged);
         this.setState({ isLoggedIn: logged });
+    }
+
+    userChoseAStory = story =>{
+        this.setState({ storyno: story });
     }
 
     handleLogout = event => {
@@ -37,8 +43,10 @@ class App extends Component {
         //<li className="nav-item dropdown" title="Stories" id="basic-nav-dropdown">
 
         const stateProps = {
+            storyno:this.state.storyno,
             isLoggedIn: this.state.isLoggedIn,
-            userHasLoggedIn: this.userHasLoggedIn
+            userHasLoggedIn: this.userHasLoggedIn,
+            userChoseAStory: this.userChoseAStory
         };
 
         return (

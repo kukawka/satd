@@ -15,6 +15,8 @@ import Nav from "../components/Nav";
 import LibraryPageThumbnail from "../components/LibraryPageThumbnail";
 import LibraryImageThumbnail from "../components/LibraryImageThumbnail";
 import Portal from '../Portal';
+import Preview from "../containers/Preview";
+import FullScreenPortal from '../FullScreenPortal';
 import io from "socket.io-client";
 
 export default class StoryEditor extends Component {
@@ -23,6 +25,7 @@ export default class StoryEditor extends Component {
         //remember to connect this to back-end:
         this.socket = io('localhost:8080');
         this.state = {
+            storyno: props.storyno,
             story: {id: 0, title: '', date: '', patient: ''},
             pages: [],
             libraryOfImages: [
@@ -77,6 +80,7 @@ export default class StoryEditor extends Component {
             showInspectPagePortal: false,
             showConfirmDeletePortal:false,
             showConfirmFinishPortal: false,
+            showPreviewPortal: false,
 
             pageToAddTo: 1,
             imageToAdd: null,
@@ -102,6 +106,7 @@ export default class StoryEditor extends Component {
 
         this.confirmFinish=this.confirmFinish.bind(this);
         this.handleFinish=this.handleFinish.bind(this);
+        this.showPreview=this.showPreview.bind(this);
 
         this.addTemplatePage = this.addTemplatePage.bind(this);
         this.inspectPage = this.inspectPage.bind(this);
@@ -127,7 +132,7 @@ export default class StoryEditor extends Component {
 
     componentDidMount() {
         this.socket.emit('GET_STORY', {
-            storyid: 1
+            storyid: this.state.storyno
         });
 
         this.socket.on('INITIAL_STORY_STATE', function (data1, data2) {
@@ -147,6 +152,12 @@ export default class StoryEditor extends Component {
     confirmFinish(){
         this.setState({
             showConfirmFinishPortal:true
+        });
+    }
+
+    showPreview(){
+        this.setState({
+            showPreviewPortal:true
         });
     }
 
@@ -201,7 +212,8 @@ export default class StoryEditor extends Component {
             showInspectImagePortal: false,
             showInspectPagePortal: false,
             showConfirmDeletePortal: false,
-            showConfirmFinishPortal:false
+            showConfirmFinishPortal:false,
+            showPreviewPortal: false
         });
     }
     getInitialState() {
@@ -358,7 +370,7 @@ export default class StoryEditor extends Component {
 
         this.socket.emit('ADD_TEMPLATE_PAGE', {
             page: pageToAdd,
-            storyno:1
+            storyno:this.state.storyno
         });
     }
 
@@ -373,12 +385,12 @@ export default class StoryEditor extends Component {
         this.state.pages.push(pageToAdd);
         this.socket.emit('ADD_TEMPLATE_PAGE', {
             page: pageToAdd,
-            storyno:1
+            storyno:this.state.storyno
         });
     }
 
     inspectPage(e) {
-        alert(e.currentTarget.dataset.id);
+        //alert(e.currentTarget.dataset.id);
         var pageToAdd = this.state.libraryOfPages[e.currentTarget.dataset.id - 1];
         //alert(currentPage);
         this.setState({
@@ -424,6 +436,7 @@ export default class StoryEditor extends Component {
     }
 
     render() {
+        //alert(this.state.storyno);
         var charactersLeft = 100 - this.state.pageText.length;
 
         //styles
@@ -466,7 +479,7 @@ export default class StoryEditor extends Component {
         };
 
         const librariesNav = (
-            <ul className="nav nav-pills flex-column">
+            <ul className="nav nav-tabs">
                 <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="1">
                     <a className={this.state.selectedLibItem == 1 ? "nav-link active" : "nav-link"} href="#">Pages</a>
                 </li>
@@ -634,6 +647,12 @@ export default class StoryEditor extends Component {
         return (
 
             <Container>
+                <FullScreenPortal
+                    open={this.state.showPreviewPortal}
+                    onClose={this.handleClosePortal}
+                >
+                    <Preview pages={this.state.pages}/>
+                </FullScreenPortal>
                 <Portal
                     open={this.state.showConfirmFinishPortal}
                     header="Confirm Finish"
@@ -706,7 +725,7 @@ export default class StoryEditor extends Component {
                 <div class="card">
                     <div class="card-body">
                 <div className="row">
-                    <Col xs={12} md={8}>
+                    <Col xs={12} md={6}>
                         <form>
                             <div class="form-group row">
                                 <label class="col-sm-2">Story Title</label>
@@ -725,6 +744,9 @@ export default class StoryEditor extends Component {
                                 </div>
                             </div>
                         </form>
+                    </Col>
+                    <Col xs={12} md={2}>
+                        <a class="btn btn-large btn-info" onClick={this.showPreview}><Glyphicon glyph="play"> Preview</Glyphicon></a>
                     </Col>
                     <Col xs={12} md={2}>
                         <a class="btn btn-large btn-info" href="/toda"><Glyphicon glyph="charts"> View
