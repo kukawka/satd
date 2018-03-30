@@ -17,13 +17,9 @@ export default class Modal extends Component {
             </div>
                 <div className="modal-custom">
 
-                    <div role="dialog" className="modal-dialog modal-dialog-custom">
-                        <div className="modal-content">
                     {this.props.children}
                     </div>
                         </div>
-                    </div>
-                </div>
 
         ) : null
     }

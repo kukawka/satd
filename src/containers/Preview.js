@@ -34,7 +34,7 @@ export default class Preview extends Component {
         const settings = {
             dots: true,
             infinite: true,
-            slidesToShow: 1,
+            slidesToShow: 4,
             slidesToScroll: 1,
             nextArrow: <SampleNextArrow/>,
             prevArrow: <SamplePrevArrow/>
@@ -43,19 +43,8 @@ export default class Preview extends Component {
         const pages = this.props.pages
             .sort((a,b) => a.id - b.id)
             .map((page) =>
-                <div className="card">
-                    <div className="card-header">
-                        <div class="d-flex justify-content-end">
-                        <button className="btn btn-danger" disabled={true}><Glyphicon glyph="hand-up"/></button>
-                        </div>
-                    </div>
-                    <img src={require('../images/' + page.imageTitle + '.jpg')} alt="No image assigned yet."
+                    <img src={require('../images/' + page.imageTitle + '.png')} alt="No image assigned yet."
                          className="card-img-top"/>
-                    <div className="card-body">
-                            <h5 className="card-title">{page.title}</h5>
-                            <p className="card-text">{page.text}</p>
-                    </div>
-                    </div>
             );
 
         return (

@@ -9,10 +9,5 @@
 }
 
 .modal-custom{
-    position: fixed;
-    top: 5%;
-    left: 10%;
-    right: 10%;
-    bottom: 20%;
     z-index: 1001;
 }
