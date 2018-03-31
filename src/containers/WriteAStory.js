@@ -122,6 +122,19 @@ export default class StoryEditor extends Component {
         }.bind(this));
     }
 
+    reloadStory(){
+        this.socket.emit('GET_STORY', {
+            storyid: this.state.storyno
+        });
+
+        this.socket.on('INITIAL_STORY_STATE', function (data1, data2) {
+            this.setState({
+                story: data1,
+                pages: data2
+            });
+        }.bind(this));
+    }
+
     handleFinish() {
         this.setState({
             finished: true
@@ -140,6 +153,7 @@ export default class StoryEditor extends Component {
         });
     }
 
+    //adding an image without inspecting first
     addExistingImage(e) {
         //alert(e.currentTarget.dataset.id);
         var allImages = this.state.libraryOfImages;
@@ -148,8 +162,11 @@ export default class StoryEditor extends Component {
             imageToAdd: imageToAdd,
             showAddImagePortal: !this.state.showAddImagePortal
         });
+
+        this.reloadStory();
     }
 
+    //showing the "Add Image Portal" for an inspected image
     addInspectedImage() {
         this.setState({
             showInspectImagePortal: false,
@@ -157,14 +174,14 @@ export default class StoryEditor extends Component {
         });
     }
 
+
+    //adding an image that was first inspected
     handleAddImage() {
         var allPages = this.state.pages;
         let imageTitle = this.state.imageToAdd.path;
         let pageID = this.state.pageToAddTo;
         let pageDBID = allPages[pageID - 1].dbid;
         this.setState({
-            /*pages: modifiedPages,
-            currentPage: modifiedPages[this.state.pageToAddTo - 1],*/
             pageToAddTo: 1,
             imageToAdd: null,
             showAddImagePortal: !this.state.showAddImagePortal
@@ -174,6 +191,10 @@ export default class StoryEditor extends Component {
             pageDBID: pageDBID,
             imageTitle: imageTitle
         });
+
+        //updateTheStoryState
+
+        this.reloadStory();
     }
 
     inspectImage(e) {
@@ -321,18 +342,26 @@ export default class StoryEditor extends Component {
         }
     }
 
+    addAPageToDB(page){
+        this.socket.emit('ADD_TEMPLATE_PAGE', {
+            page: page
+        });
+        this.reloadStory();
+        this.setState({
+            currentPage: page
+        });
+    }
+
     addNewPage() {
         var blankPage = {
             id: (this.state.pages.length + 1),
             title: 'New Page',
-            text: '',
+            text: 'Add text',
+            notes:'No notes yet',
             imageTitle: 'placeholder',
             isWorrying: false
         };
-        this.setState({
-            currentPage: blankPage
-        });
-        this.state.pages.push(blankPage);
+        this.addAPageToDB(blankPage);
     }
 
     addTemplatePage(e) {
@@ -342,16 +371,7 @@ export default class StoryEditor extends Component {
         //let modifiedPageToAdd= pageToAdd;
         pageToAdd.id = this.state.pages.length + 1;
         //alert(pageToAdd.id);
-
-        this.setState({
-            currentPage: pageToAdd
-        });
-        this.state.pages.push(pageToAdd);
-
-        this.socket.emit('ADD_TEMPLATE_PAGE', {
-            page: pageToAdd,
-            storyno: this.state.storyno
-        });
+        this.addAPageToDB(pageToAdd);
     }
 
     addInspectedTemplatePage() {
@@ -359,14 +379,9 @@ export default class StoryEditor extends Component {
         var pageToAdd = this.state.inspectedPage;
         pageToAdd.id = this.state.pages.length + 1;
         this.setState({
-            currentPage: pageToAdd,
             showInspectPagePortal: false
         });
-        this.state.pages.push(pageToAdd);
-        this.socket.emit('ADD_TEMPLATE_PAGE', {
-            page: pageToAdd,
-            storyno: this.state.storyno
-        });
+        this.addAPageToDB(pageToAdd);
     }
 
     inspectPage(e) {
@@ -454,8 +469,10 @@ export default class StoryEditor extends Component {
         };
 
         var inspectedImageStyle = {
-            width: 450,
-            height: "auto"
+            height: "auto",
+            width: "auto",
+            maxWidth: 300,
+            maxHeight: 300
         };
 
         const librariesNav = (

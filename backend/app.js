@@ -101,8 +101,8 @@ io.on('connection', (socket) => {
 
 
     socket.on('DELETE_PAGE', function (data) {
-        let deleteQuery = 'DELETE FROM storypages where page=? AND pageNo=?';
-        db.query(deleteQuery, [data.pageDBID, data.pageNo], function (err) {
+        let deleteQuery = 'DELETE FROM page where idpage=?';
+        db.query(deleteQuery, [data.pageDBID], function (err) {
             if (err) throw err;
             else {
                 //console.log(data.pageNo+ ' '+ data.pageDBID );
@@ -134,23 +134,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_TEMPLATE_PAGE', function (data) {
-        let newPageID = 0;
-        let addQuery = 'INSERT INTO page (title, text, imageTitle, notes, isWorrying) VALUES (?,?,?,?,?)';
-        db.query(addQuery, [data.page.title, data.page.text, data.page.imageTitle, data.page.notes, false], function (err) {
+        //let storyno=data.storyno;
+        console.log(data.page.id);
+        let addQuery = 'INSERT INTO page (title, text, imageTitle, notes, isWorrying, storyNo, pageNo) VALUES (?,?,?,?,?,?,?)';
+        db.query(addQuery, [data.page.title, data.page.text, data.page.imageTitle, data.page.notes, false, chosenStory, data.page.id], function (err) {
             if (err) throw err;
         });
-        let checkQuery = 'SELECT MAX(idpage) as id from page;';
-        db.query(checkQuery)
-            .on('result', function (data) {
-                //console.log(data.id);
-                newPageID = data.id;
-            })
-            .on('end', function () {
-                addQuery = 'INSERT INTO storypages (story, page, pageNo) VALUES (?,?,?)';
-                db.query(addQuery, [data.storyno, newPageID, data.page.id], function (err) {
-                    if (err) throw err;
-                });
-            });
     });
 
     socket.on('GET_ALL_STORIES', function () {
