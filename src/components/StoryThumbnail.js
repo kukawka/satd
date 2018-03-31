@@ -15,6 +15,7 @@ export default class StoryThumbnail extends React.Component {
                         <button onClick={this.props.onEdit} data-id={this.props.story.idStory}
                                 className="btn btn-outline-success"><Glyphicon glyph="edit"> Edit</Glyphicon></button>
                         <button onClick={this.props.onDuplicate} data-id={this.props.story.idStory}
+                                data-title={this.props.story.title} data-patient={this.props.story.patient}
                                 className="btn btn-outline-warning"><Glyphicon glyph="duplicate"> Duplicate</Glyphicon>
                         </button>
                     </div>

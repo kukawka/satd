@@ -9,6 +9,7 @@ import DropdownButton from "../components/DropdownButton";
 import Container from "../components/Container";
 import "./Stories.css";
 import {Redirect} from 'react-router';
+import Portal from '../Portal';
 import io from "socket.io-client";
 
 export default class StoryLibrary extends Component {
@@ -22,15 +23,22 @@ export default class StoryLibrary extends Component {
                  {id: 1, title: 'Annual check-up', date: '14.03.2018', patient: 'Tommy White'}
              ],*/
             searchedPhrase: '',
-            redirected:false
+            redirected: false,
+            toDuplicate: 0,
+            duplicateTitle:'',
+            duplicatePatient:'',
+            showDuplicatePortal: false
             //title: this.props.title
         };
 
         //bind methods for the searchbox
         this.handleChange = this.handleChange.bind(this);
+        this.updateInput=this.updateInput.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.redirectToAStory=this.redirectToAStory.bind(this);
-        this.duplicateAStory=this.duplicateAStory.bind(this);
+        this.redirectToAStory = this.redirectToAStory.bind(this);
+        this.duplicateAStory = this.duplicateAStory.bind(this);
+        this.confirmDuplicate = this.confirmDuplicate.bind(this);
+        this.handleClosePortal = this.handleClosePortal.bind(this);
         this.socket = io('localhost:8080');
     }
 
@@ -49,8 +57,8 @@ export default class StoryLibrary extends Component {
         return this.state.initialStoriesSet;
     }
 
-    redirectToAStory(e){
-        this.socket.emit('SET_STORY',{
+    redirectToAStory(e) {
+        this.socket.emit('SET_STORY', {
             id: e.currentTarget.dataset.id
         });
         this.setState({
@@ -58,12 +66,52 @@ export default class StoryLibrary extends Component {
         });
     }
 
-    duplicateAStory(e){
-        alert(e.currentTarget.dataset.id);
-        this.socket.emit('DUPLICATE_STORY',{
-            id: e.currentTarget.dataset.id,
-            patient: 'Hannah Jones',
-            title: 'Test'
+    duplicateAStory() {
+        //alert(this.state.toDuplicate);
+        //alert(this.state.duplicatePatient);
+        this.socket.emit('DUPLICATE_STORY', {
+            id: this.state.toDuplicate,
+            patient: this.state.duplicatePatient,
+            title: this.state.duplicateTitle
+        });
+
+        this.setState({
+            showDuplicatePortal: false,
+            toDuplicate: 0,
+            duplicatePatient:'',
+            duplicateTitle:''
+        });
+
+        //refresh the library
+        this.socket.emit('GET_ALL_STORIES');
+
+        this.socket.on('INITIAL_STORIES', function (data) {
+            this.setState({
+                stories: data,
+                initialStoriesSet: data
+            });
+        }.bind(this));
+    }
+
+    handleClosePortal() {
+        this.setState({
+            showDuplicatePortal: false,
+            toDuplicate: 0
+        });
+    }
+
+    confirmDuplicate(e) {
+        this.setState({
+            showDuplicatePortal: true,
+            toDuplicate: e.currentTarget.dataset.id,
+            duplicatePatient:e.currentTarget.dataset.patient,
+            duplicateTitle:e.currentTarget.dataset.title
+        });
+    }
+
+    updateInput(e) {
+        this.setState({
+            [e.currentTarget.name]: e.currentTarget.value
         });
     }
 
@@ -100,7 +148,7 @@ export default class StoryLibrary extends Component {
         //render all stories
         const listOfAll = this.state.stories.map((story) =>
             <Col key={story.id} xs={12} md={4}>
-                <StoryThumbnail story={story} onEdit={this.redirectToAStory} onDuplicate={this.duplicateAStory}/>
+                <StoryThumbnail story={story} onEdit={this.redirectToAStory} onDuplicate={this.confirmDuplicate}/>
             </Col>
         );
 
@@ -110,6 +158,28 @@ export default class StoryLibrary extends Component {
 
         return (
             <Container>
+                <Portal
+                    open={this.state.showDuplicatePortal}
+                    header="Duplicate A Story"
+                    onConfirm={this.duplicateAStory}
+                    onCancel={this.handleClosePortal}
+                    buttonText="DUPLICATE"
+                    cancelButtonText="CANCEL"
+                    cancelButton={true}
+                >
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Story Title</label>
+                            <input type="text" class="form-control" onChange={this.updateInput} value={this.state.duplicateTitle} name="duplicateTitle"
+                                   aria-describedby="emailHelp" placeholder="Enter title"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Patient</label>
+                            <input type="text" class="form-control" onChange={this.updateInput} value={this.state.duplicatePatient} name="duplicatePatient"
+                                   placeholder="Enter patient"/>
+                        </div>
+                    </form>
+                </Portal>
                 <Well id="toolbar">
                     <Row>
                         <Col xs={12} md={1}>
@@ -152,6 +222,6 @@ export default class StoryLibrary extends Component {
                     </Col>
                 </Row>
             </Container>
-        );
+    );
     }
-}
+    }

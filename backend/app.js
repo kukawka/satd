@@ -198,7 +198,11 @@ io.on('connection', (socket) => {
 
 
     socket.on('DUPLICATE_STORY', function (data) {
-        //console.log(data.id);
+
+        let patient=data.patient;
+        let title=data.title;
+        //console.log('data passed' + data.patient);
+
         var newStoryNo = 0;
         let tempTablequery = 'CREATE TEMPORARY TABLE temp_table SELECT title, text, imageTitle, isWorrying, notes, pageNo from page where storyNo=?';
         db.query(tempTablequery, data.id, function (err) {
@@ -208,14 +212,15 @@ io.on('connection', (socket) => {
                 .on('result', function (data) {
                     //console.log(data.no);
                     newStoryNo = data.no + 1;
-                    console.log(newStoryNo);
+                    //console.log(newStoryNo);
+                    //console.log('data passed' + data.title);
                     tempTablequery = 'ALTER TABLE temp_table ADD storyNo int(10) default ?';
                     db.query(tempTablequery, newStoryNo, function (err) {
                         if (err) throw err
                     })
 
-                    let addStoryQuery = 'INSERT INTO STORY (title, date, patient) VALUES (?, NOW(), ?)';
-                    db.query(addStoryQuery, [data.title, data.patient], function (err) {
+                    let addStoryQuery = 'INSERT INTO STORY (idStory, title, date, patient) VALUES (?, ?, NOW(), ?)';
+                    db.query(addStoryQuery, [newStoryNo, title, patient], function (err) {
                         if (err) throw err
                     }).on('end', function () {
                         let addPagesQuery = 'INSERT INTO page (title, text, imageTitle, isWorrying, notes, pageNo, storyNo) SELECT * from temp_table';
@@ -230,7 +235,8 @@ io.on('connection', (socket) => {
                     })
                 })
         })
-        //remember to add story before adding pages
+        stories=[];
+        initialStoriesSet=false;
     })
 
     socket.on('GET_STORY', function (data) {

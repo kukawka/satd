@@ -667,7 +667,7 @@ export default class StoryEditor extends Component {
                     cancelButtonText="CANCEL"
                     cancelButton={true}
                 >
-                    <p>You are about to finish editing the story '{this.state.story.title}' for {this.state.story.title}.</p>
+                    <p>You are about to finish editing the story '{this.state.story.title}' for {this.state.story.patient}.</p>
                     <p>All the changes have been saved.</p>
                 </Portal>
                 <Portal
