@@ -436,8 +436,8 @@ export default class StoryEditor extends Component {
 
         //styles
         var imgStyle = {
-            minHeight: "150px",
-            maxHeight: "270px",
+            minHeight: "100px",
+            maxHeight: "200px",
             width: "auto"
         };
 
@@ -640,7 +640,7 @@ export default class StoryEditor extends Component {
                             <label><strong>Page Story</strong></label>
                             <textarea className="form-control" value={this.state.inspectedPage.text}
                                       placeholder="Text for the page.."
-                                      maxLength="300" disabled={true}/>
+                                      rows="4" disabled={true}/>
                         </div>
                     </form>
                 ] : []}
@@ -700,7 +700,7 @@ export default class StoryEditor extends Component {
                 </Portal>
                 <Portal
                     open={this.state.showAddImagePortal}
-                    header="Add the Image to one of the Pages"
+                    header={this.state.imageToAdd != null ? ["Add image ", this.state.imageToAdd.title, " to a chosen page."]: " "}
                     onConfirm={this.handleAddImage}
                     onCancel={this.handleClosePortal}
                     buttonText="ADD"
@@ -719,7 +719,7 @@ export default class StoryEditor extends Component {
                 </Portal>
                 <Portal
                     open={this.state.showInspectImagePortal}
-                    header="Image Preview"
+                    header={this.state.imageToAdd != null ? ["Preview of ", this.state.imageToAdd.title]: " "}
                     onConfirm={this.addInspectedImage}
                     onCancel={this.handleClosePortal}
                     buttonText="ADD TO A PAGE"
@@ -727,10 +727,10 @@ export default class StoryEditor extends Component {
                     cancelButton={true}
                 >
                     <div className="d-flex justify-content-center">
-                        {this.state.imageToAdd != null ?
+                        {this.state.imageToAdd != null ?[
                             <img src={require('../images/' + this.state.imageToAdd.path + '.png')} alt="Error"
                                  style={inspectedImageStyle}/>
-                            : []}
+                            ]: []}
                     </div>
                 </Portal>
                 <Portal
