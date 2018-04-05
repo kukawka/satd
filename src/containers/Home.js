@@ -16,7 +16,9 @@ export default class Home extends Component {
             redirectedToEditor: false,
             newTitle: '',
             newPatient: '',
-            showNewPortal: false
+            showNewPortal: false,
+            todos:[],
+            todochosen: 0
         };
         //title: this.props.title
         this.redirectToAStory = this.redirectToAStory.bind(this);
@@ -24,8 +26,19 @@ export default class Home extends Component {
         this.openCreateStoryPortal = this.openCreateStoryPortal.bind(this);
         this.handleClosePortal = this.handleClosePortal.bind(this);
         this.updateInput = this.updateInput.bind(this);
+        //this.proceed = this.proceed.bind(this);
         this.socket = io('localhost:8080');
     };
+
+    componentDidMount() {
+        this.socket.emit('GET_TODOS');
+
+        this.socket.on('INITIAL_TODOS', function (data) {
+            this.setState({
+                todos: data
+            });
+        }.bind(this));
+    }
 
     handleClosePortal(){
         this.setState({
@@ -35,9 +48,12 @@ export default class Home extends Component {
         });
     }
 
-    openCreateStoryPortal(){
+    openCreateStoryPortal(e){
         this.setState({
-            showNewPortal: true
+            showNewPortal: true,
+            todochosen: e.currentTarget.dataset.id,
+            newPatient: e.currentTarget.dataset.patient,
+            newTitle: e.currentTarget.dataset.proc
         });
     }
 
@@ -47,13 +63,19 @@ export default class Home extends Component {
             title: this.state.newTitle
         });
 
-        this.socket.on('STORY_CREATED')
+        this.socket.on('STORY_CREATED', function (data)
         {
-            //alert('finished!');
+            alert(data);
             this.setState({
-                redirectedToEditor: true
+                redirectedToEditor: true,
+                newTitle:'',
+                newPatient:''
             });
-        }
+
+            this.socket.emit('COMPLETE_TODO', {
+                id: this.state.todochosen
+            });
+        }.bind(this));
     }
 
     redirectToAStory(){
@@ -74,6 +96,30 @@ export default class Home extends Component {
         var alignLeft = {
             alignSelf: "flex-end"
         };
+
+        const todos = this.state.todos
+            .sort((a, b) => a.deadline - b.deadline)
+            .map((todo) =>
+                <a href="#"
+                   class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{todo.action}</h5>
+                        <small>{(todo.deadline).substring(0, 10)}</small>
+                    </div>
+                    <div class="d-flex w-100 justify-content-between">
+                        <p class="mb-1">{todo.procedure} for {todo.patient}</p>
+                        <div>
+                            <button className="btn btn-outline-success" data-patient={todo.patient} data-proc={todo.procedure} data-id={todo.idtodo} onClick={this.openCreateStoryPortal}>
+                                Write from Scratch
+                            </button>
+                            <button disabled={true} className="btn btn-outline-primary" href="/stories">
+                                Browse the Library
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            );
+
         return (
             <div className="container">
                 <Portal
@@ -107,37 +153,7 @@ export default class Home extends Component {
                             </div>
                             <div class="card-body">
                                 <ul class="list-group list-group-flush">
-                                    <a href="#"
-                                       class="list-group-item list-group-item-action flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1">Write a Story</h5>
-                                            <small>Monday, 26th March</small>
-                                        </div>
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <p class="mb-1">Tooth Drilling for Susan Smith</p>
-                                            <div>
-                                                <button className="btn btn-outline-success" onClick={this.openCreateStoryPortal}>
-                                                    Write from Scratch
-                                                </button>
-                                                <a className="btn btn-outline-primary" href="/stories">
-                                                    Browse the Library
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#"
-                                       class="list-group-item list-group-item-action flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1">Write a Story</h5>
-                                            <small>Thursday, 29th March</small>
-                                        </div>
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <p class="mb-1">Check-up for Tom Brown</p>
-                                            <Button bsStyle="outline-success">
-                                                Write now
-                                            </Button>
-                                        </div>
-                                    </a>
+                                    {todos}
                                 </ul>
                             </div>
                         </div>

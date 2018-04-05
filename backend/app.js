@@ -38,6 +38,7 @@ var notes = [];
 var stories = [];
 var pages = [];
 var images = [];
+var todos = [];
 var initialDataSet = false;
 var initialStoriesSet = false;
 var initialLibraries = false;
@@ -71,7 +72,28 @@ io.on('connection', (socket) => {
     socket.on('SET_STORY', function (data) {
         chosenStory = data.id;
         console.log(chosenStory);
-    })
+    });
+
+
+    socket.on('COMPLETE_TODO', function (data) {
+        var query = 'UPDATE todo set completed=true where idtodo=?';
+        db.query(query, [data.id], function (err) {
+            if (err) throw err;
+        });
+    });
+
+    socket.on('GET_TODOS', function () {
+        todos=[];
+        db.query('SELECT * from todo where completed=false;')
+            .on('result', function (data) {
+                // Push results onto the notes array
+                todos.push(data);
+            })
+            .on('end', function () {
+                // Only emit notes after query has been completed
+                io.emit('INITIAL_TODOS', todos)
+            });
+    });
 
     socket.on('ADD_NOTE', function (data) {
         //io.emit('RECEIVE_NOTE', data);
@@ -208,9 +230,10 @@ io.on('connection', (socket) => {
                     if (err) throw err
                 }).on('end', function () {
                     chosenStory=newStoryNo;
+                    console.log(chosenStory);
                     stories = [];
                     initialStoriesSet = false;
-                    io.emit('STORY_CREATED');
+                    io.emit('STORY_CREATED', chosenStory);
                 })
             });
     });
@@ -261,7 +284,7 @@ io.on('connection', (socket) => {
     socket.on('GET_STORY', function (data) {
         let story = {id: 0, title: '', date: '', patient: ''};
         let pages = [];
-        //console.log('getting data for..'+ chosenStory)
+        console.log('getting data for..'+ chosenStory);
         let query = 'SELECT * FROM story WHERE idStory=?';
         db.query(query, chosenStory, function (err, rows) {
             if (err) throw err;

@@ -9,7 +9,7 @@ export default class StoryThumbnail extends React.Component {
                 <img src={require('../images/checkup.jpg')} alt="..." className="card-img-top"/>
                 <div className="card-body">
                     <h5 className="card-title">{this.props.story.title}</h5>
-                    <p>{this.props.story.date}</p>
+                    <p>{this.props.story.date.substring(0, 10)}</p>
                     <p>{this.props.story.patient}</p>
                     <div className="card-text d-flex justify-content-center">
                         <button onClick={this.props.onEdit} data-id={this.props.story.idStory}
