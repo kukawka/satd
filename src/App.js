@@ -16,13 +16,24 @@ class App extends Component {
 
         this.state = {
             isLoggedIn: true,
+            username: '',
             isAuthenticating:true,
             storyno:1
         };
         this.socket = io('localhost:8080');
     }
+   /*
+    componentDidMount() {
+        this.socket.emit('CHECKED_IF_LOGGED_IN');
 
-
+        this.socket.on('LOGGED_IN_OR_NOT', function (data1, data2) {
+            this.setState({
+                isLoggedIn: data1,
+                username: data2
+            });
+        }.bind(this));
+    }
+    */
 
     userHasLoggedIn = logged => {
         //alert(logged);
@@ -39,8 +50,9 @@ class App extends Component {
     }
 
     render() {
-        //alert(this.state.isLoggedIn);
+        //alert(this.state.isLoggedIn+ this.state.username);
         //<li className="nav-item dropdown" title="Stories" id="basic-nav-dropdown">
+
 
         const stateProps = {
             storyno:this.state.storyno,

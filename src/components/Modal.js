@@ -4,10 +4,19 @@ import ReactDOM from 'react-dom'
 
 export default class Modal extends Component {
     render() {
+        const position = {
+            position: "fixed",
+            top: "5%",
+            bottom: "10%",
+            left:"20%",
+            right:"20%",
+            zIndex: 1001
+        };
+
         //alert(this.props.open);
         return this.props.open ? (
             <div className="modal-background">
-                <div className="modal-custom">
+                <div className="modal-custom" style={position}>
                     <div role="dialog" className="modal-dialog modal-dialog-custom">
                         <div className="modal-content">
                             <div className="modal-header">

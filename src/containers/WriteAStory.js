@@ -31,7 +31,9 @@ export default class StoryEditor extends Component {
             libraryOfImages: [],
             libraryOfPages: [],
             initialLibraryOfPages: [],
+            initialLibraryOfImages: [],
             finished: false,
+            needToReload:false,
 
             currentPage: null,
             currentPageID: 0,
@@ -91,12 +93,7 @@ export default class StoryEditor extends Component {
         //this.componentDidMount=this.componentDidMount.bind(this);
         this.updateInput = this.updateInput.bind(this);
         this.updateTitle = this.updateTitle.bind(this);
-
-        const setStory = data => {
-            //console.log(data);
-            this.setState({story: data});
-            //console.log(this.state.notes);
-        };
+        this.sendToDB=this.sendToDB.bind(this);
     }
 
     componentDidMount() {
@@ -116,13 +113,15 @@ export default class StoryEditor extends Component {
         this.socket.on('INITIAL_LIBRARIES', function (data1, data2) {
             this.setState({
                 libraryOfPages: data1,
-                initiallibraryOfPages: data1,
-                libraryOfImages: data2
+                initialLibraryOfPages: data1,
+                libraryOfImages: data2,
+                initialLibraryOfImages: data2
             });
         }.bind(this));
     }
 
-    reloadStory(){
+    reloadStory() {
+        //alert('reloaded');
         this.socket.emit('GET_STORY', {
             storyid: this.state.storyno
         });
@@ -221,6 +220,10 @@ export default class StoryEditor extends Component {
         return this.state.initialLibraryOfPages;
     }
 
+    getInitialImagesState() {
+        return this.state.initialLibraryOfImages;
+    }
+
     handleSelectChange(e) {
         this.setState({
             pageToAddTo: e.target.value
@@ -231,6 +234,8 @@ export default class StoryEditor extends Component {
 
     handleSearch(event) {
         var updatedList = this.getInitialState();
+        var updatedImagesList = this.getInitialImagesState();
+
         this.setState({
             searchedPage: event.target.value
         });
@@ -242,7 +247,17 @@ export default class StoryEditor extends Component {
                     event.target.value.toLowerCase()) !== -1;
         });
 
-        this.setState({libraryOfPages: updatedList});
+        updatedImagesList = updatedImagesList.filter(function (item) {
+            return item.title.toLowerCase().search(
+                event.target.value.toLowerCase()) !== -1 ||
+                item.path.toLowerCase().search(
+                    event.target.value.toLowerCase()) !== -1;
+        });
+
+        this.setState({
+            libraryOfPages: updatedList,
+            libraryOfImages: updatedImagesList
+        });
     }
 
     handleClear() {
@@ -250,13 +265,27 @@ export default class StoryEditor extends Component {
             searchedPage: ''
         });
         this.setState(
-            {libraryOfPages: this.state.initialLibraryOfPages});
+            {
+                libraryOfPages: this.state.initialLibraryOfPages,
+                libraryOfImages: this.state.initialLibraryOfImages
+            });
+    }
+
+    getPages(){
+        return this.state.pages;
     }
 
     chooseToEdit(e) {
         //alert(e.currentTarget.dataset.id);
-        var currentPage = this.state.pages[e.currentTarget.dataset.id - 1];
-        //alert(currentPage);
+        if(this.state.needToReload) {
+            this.reloadStory();
+            this.setState({
+                needToReload: false
+            });
+        }
+        let tempPages=this.getPages();
+        var currentPage = tempPages[e.currentTarget.dataset.id - 1];
+        //alert(currentPage.notes);
         this.setState({
             pageText: currentPage.text,
             pageTitle: currentPage.title,
@@ -342,14 +371,27 @@ export default class StoryEditor extends Component {
         }
     }
 
-    addAPageToDB(page){
+    addAPageToDB(page) {
         this.socket.emit('ADD_TEMPLATE_PAGE', {
             page: page
         });
-        this.reloadStory();
-        this.setState({
+        this.socket.on('PAGE_ADDED', function() {
+           alert('added');
+            this.reloadStory();
+            this.setState({
+                currentPage: page,
+                pageNotes: page.notes,
+                pageTitle: page.title,
+                pageText: page.text,
+                pageImageTitle: page.imageTitle,
+                pageDBID: page.dbid,
+                pageID: page.id
+            });
+        }.bind(this));
+
+       /* this.setState({
             currentPage: page
-        });
+        });*/
     }
 
     addNewPage() {
@@ -357,7 +399,7 @@ export default class StoryEditor extends Component {
             id: (this.state.pages.length + 1),
             title: 'New Page',
             text: 'Add text',
-            notes:'No notes yet',
+            notes: 'No notes yet',
             imageTitle: 'placeholder',
             isWorrying: false
         };
@@ -409,6 +451,21 @@ export default class StoryEditor extends Component {
             [e.target.name]: e.target.value
         });
 
+       /* this.socket.emit('UPDATE_PAGE', {
+            pageText: this.state.pageText,
+            pageTitle: this.state.pageTitle,
+            pageNotes: this.state.pageNotes,
+            pageImageTitle: this.state.pageImageTitle,
+            pageDBID: this.state.pageDBID
+        });*/
+        //this.render();
+    }
+
+    sendToDB(){
+        this.setState({
+            needToReload: true
+        });
+
         this.socket.emit('UPDATE_PAGE', {
             pageText: this.state.pageText,
             pageTitle: this.state.pageTitle,
@@ -416,7 +473,6 @@ export default class StoryEditor extends Component {
             pageImageTitle: this.state.pageImageTitle,
             pageDBID: this.state.pageDBID
         });
-        //this.render();
     }
 
     updateTitle() {
@@ -441,6 +497,12 @@ export default class StoryEditor extends Component {
             width: "auto"
         };
 
+        var editorImgStyle = {
+            minHeight: "200px",
+            maxHeight: "300px",
+            width: "auto"
+        };
+
         var alignCenter = {
             textAlign: "center",
             alignItems: "center"
@@ -452,7 +514,8 @@ export default class StoryEditor extends Component {
         };
 
         var pageEditorStyle = {
-            height: 550
+            height: 550,
+            overflowY: "scroll",
         };
 
         var marginAtTop = {
@@ -476,7 +539,7 @@ export default class StoryEditor extends Component {
         };
 
         const librariesNav = (
-            <ul className="nav nav-tabs">
+            <ul className="nav nav-tabs" style={marginAtTop}>
                 <li className="nav-item" onClick={e => this.handleSelect(e)} data-id="1">
                     <a className={this.state.selectedLibItem == 1 ? "nav-link active" : "nav-link"} href="#">Pages</a>
                 </li>
@@ -511,7 +574,7 @@ export default class StoryEditor extends Component {
         const libraryImages = [];
         temp = this.state.libraryOfImages;
         for (var i = 1; i <= temp.length; i++) {
-            let image=temp[i-1];
+            let image = temp[i - 1];
             libraryImages.push(
                 <div class="p-3">
                     <LibraryImageThumbnail data-id={i} image={image} id={i}
@@ -568,7 +631,7 @@ export default class StoryEditor extends Component {
                             <img
                                 src={require('../images/' + this.state.currentPage.imageTitle + '.png')}
                                 alt="Choose an image from the 'Images' tab"
-                                style={imgStyle} className="card-img-top"/>
+                                style={editorImgStyle} className="card-img-top"/>
                         </div>,
                         <form style={marginAtTop}>
                             <div class="form-group row" style={marginAtTop}>
@@ -576,26 +639,23 @@ export default class StoryEditor extends Component {
                                 <div class="col-sm-9">
                                     <input type="text" className="form-control" name="pageTitle"
                                            placeholder="Add the title" value={this.state.pageTitle}
-                                           onChange={this.updateInput} onBlur={this.updateTitle}/>
+                                           onChange={this.updateInput} onBlur={this.sendToDB}/>
                                 </div>
                             </div>
                             <div className="form-group row">
                                 <label class="col-sm-3 col-form-label"><strong>Page Story</strong></label>
                                 <div class="col-sm-9">
                             <textarea className="form-control" name="pageText" value={this.state.pageText}
-                                      placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateInput}/>
+                                      placeholder="Text for the page.." onChange={this.updateInput} onBlur={this.sendToDB}/>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
-                                {charactersLeft}/100
-                            </div>
+                            <hr/>
                             <div className="form-group row">
                                 <label class="col-sm-3 col-form-label"><strong>Notes</strong></label>
                                 <div class="col-sm-9">
                             <textarea className="form-control" name="pageNotes" value={this.state.pageNotes}
                                       placeholder="Text for the page.."
-                                      maxLength="100" onChange={this.updateInput}/>
+                                      maxLength="100" onChange={this.updateInput} onBlur={this.sendToDB}/>
                                 </div>
                             </div>
                         </form>] : [
@@ -648,7 +708,7 @@ export default class StoryEditor extends Component {
         );
 
         const searchForAPageBar = (
-            <div className="input-group" style={marginAtTop}>
+            <div className="input-group">
                 <input autoCorrect="off" autoComplete="off" onChange={this.handleSearch} value={this.state.searchedPage}
                        id="searchbox" type="text" className="form-control"
                        placeholder="Search for..."/>
@@ -662,10 +722,25 @@ export default class StoryEditor extends Component {
             <option value={page.id}>{page.title}</option>
         );
 
+        const previewPages = this.state.pages
+            .sort((a,b) => a.id - b.id)
+            .map((page) =>
+                <div className="card">
+                    <div className="card-header d-flex justify-content-center">
+                        <img src={require('../images/' + page.imageTitle + '.png')} alt="No image assigned yet."
+                             className="card-img-top" style={imgStyle}/>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{
+                            page.text.length>80 ? [page.text.substring(0,70), "..."] : page.text}</p>
+                    </div>
+                </div>
+            );
+
         if (this.state.finished) {
             return <Redirect to='/stories'/>;
         }
-
+        //
         return (
 
             <Container>
@@ -684,7 +759,8 @@ export default class StoryEditor extends Component {
                     cancelButtonText="CANCEL"
                     cancelButton={true}
                 >
-                    <p>You are about to finish editing the story '{this.state.story.title}' for {this.state.story.patient}.</p>
+                    <p>You are about to finish editing the story '{this.state.story.title}'
+                        for {this.state.story.patient}.</p>
                     <p>All the changes have been saved.</p>
                 </Portal>
                 <Portal
@@ -700,7 +776,7 @@ export default class StoryEditor extends Component {
                 </Portal>
                 <Portal
                     open={this.state.showAddImagePortal}
-                    header={this.state.imageToAdd != null ? ["Add image ", this.state.imageToAdd.title, " to a chosen page."]: " "}
+                    header={this.state.imageToAdd != null ? ["Add image ", this.state.imageToAdd.title, " to a chosen page."] : " "}
                     onConfirm={this.handleAddImage}
                     onCancel={this.handleClosePortal}
                     buttonText="ADD"
@@ -719,7 +795,7 @@ export default class StoryEditor extends Component {
                 </Portal>
                 <Portal
                     open={this.state.showInspectImagePortal}
-                    header={this.state.imageToAdd != null ? ["Preview of ", this.state.imageToAdd.title]: " "}
+                    header={this.state.imageToAdd != null ? ["Preview of ", this.state.imageToAdd.title] : " "}
                     onConfirm={this.addInspectedImage}
                     onCancel={this.handleClosePortal}
                     buttonText="ADD TO A PAGE"
@@ -727,10 +803,10 @@ export default class StoryEditor extends Component {
                     cancelButton={true}
                 >
                     <div className="d-flex justify-content-center">
-                        {this.state.imageToAdd != null ?[
+                        {this.state.imageToAdd != null ? [
                             <img src={require('../images/' + this.state.imageToAdd.path + '.png')} alt="Error"
                                  style={inspectedImageStyle}/>
-                            ]: []}
+                        ] : []}
                     </div>
                 </Portal>
                 <Portal
@@ -748,32 +824,23 @@ export default class StoryEditor extends Component {
                     <div class="card-body">
                         <div className="row">
                             <Col xs={12} md={8}>
-                                <Glyphicon glyph="info"/> This story
-                                <hr/>
-                                <form>
-                                    <div class="form-group row">
-                                        <label class="col-sm-1">Title</label>
-                                        <div class="col-sm-4">
-                                            <input type="email" value={this.state.story.title}
-                                                   class="form-control form-control-sm" id="colFormLabelSm"
-                                                   placeholder="Title of the story"/>
-                                        </div>
-                                        <label class="col-sm-2 col-form-label">Patient</label>
-                                        <div class="col-sm-4">
-                                            <input type="email" value={this.state.story.patient}
-                                                   class="form-control form-control-sm" id="colFormLabelSm"
-                                                   placeholder="Title of the story"/>
-                                        </div>
+                                <form class="form-inline">
+                                    <div class="form-group mb-4">
+                                        <label for="staticEmail2">Title   </label>
+                                        <input type="text" class="form-control" id="staticEmail2" name="title" value={this.state.story.title}/>
+                                    </div>
+                                    <div class="form-group mx-sm-3 mb-4">
+                                        <label for="inputPassword2">Patient   </label>
+                                        <input type="text" class="form-control" value={this.state.story.patient} name="patient" placeholder="Password"/>
                                     </div>
                                 </form>
                             </Col>
-                            <Col xs={12} md={2}>
-                                <a class="btn btn-warning" href="/toda"><Glyphicon glyph="charts"> View
-                                    TODA</Glyphicon></a>
-                            </Col>
-                            <Col xs={12} md={2}>
-                                <button class="btn btn-danger" onClick={this.confirmFinish} block><Glyphicon
-                                    glyph="save"> Finish Story</Glyphicon></button>
+                            <Col xs={12} md={4}>
+                                <div className="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-warning"><Glyphicon glyph="charts"/> View TODA</button>
+                                <button class="btn btn-primary" onClick={this.confirmFinish} block><Glyphicon
+                                    glyph="save"/> Finish Story</button>
+                                </div>
                             </Col>
                         </div>
                     </div>
@@ -801,8 +868,8 @@ export default class StoryEditor extends Component {
                                 <h5>Libraries</h5>
                             </div>
                             <div className="card-body" style={scrolling}>
+                                {searchForAPageBar}
                                 {librariesNav}
-                                {this.state.selectedLibItem == 1 && searchForAPageBar}
                                 {this.state.selectedLibItem == 1 && libraryPages}
                                 {this.state.selectedLibItem == 2 && libraryImages}
                             </div>

@@ -41,7 +41,8 @@ var images = [];
 var initialDataSet = false;
 var initialStoriesSet = false;
 var initialLibraries = false;
-var loggedIn = false;
+var loggedIn = true;
+var username = '';
 var chosenStory = 0;
 
 io.on('connection', (socket) => {
@@ -62,6 +63,10 @@ io.on('connection', (socket) => {
     else {
         io.emit('INITIAL_NOTES', notes)
     }
+
+    socket.on('CHECKED_IF_LOGGED_IN', function(){
+        io.emit('LOGGED_IN_OR_NOT', loggedIn, username);
+    });
 
     socket.on('SET_STORY', function (data) {
         chosenStory = data.id;
@@ -84,6 +89,7 @@ io.on('connection', (socket) => {
         db.query(updateQuery, [data.pageTitle, data.pageText, data.pageImageTitle, data.pageNotes, false, data.pageDBID], function (err) {
             if (err) throw err;
             else {
+                console.log(data.pageTitle+data.pageText+ data.pageImageTitle+ data.pageNotes +data.pageDBID);
                 console.log('success');
             }
         });
@@ -139,6 +145,8 @@ io.on('connection', (socket) => {
         let addQuery = 'INSERT INTO page (title, text, imageTitle, notes, isWorrying, storyNo, pageNo) VALUES (?,?,?,?,?,?,?)';
         db.query(addQuery, [data.page.title, data.page.text, data.page.imageTitle, data.page.notes, false, chosenStory, data.page.id], function (err) {
             if (err) throw err;
+        }).on('end', function () {
+            io.emit('PAGE_ADDED');
         });
     });
 
@@ -186,10 +194,31 @@ io.on('connection', (socket) => {
     });
 
 
+    socket.on('NEW_STORY', function (data) {
+        let patient = data.patient;
+        let title = data.title;
+
+        var newStoryNo = 0;
+        db.query('SELECT MAX(idStory) as no FROM story')
+            .on('result', function (data) {
+                //console.log(data.no);
+                newStoryNo = data.no + 1;
+                let addStoryQuery = 'INSERT INTO STORY (idStory, title, date, patient) VALUES (?, ?, NOW(), ?)';
+                db.query(addStoryQuery, [newStoryNo, title, patient], function (err) {
+                    if (err) throw err
+                }).on('end', function () {
+                    chosenStory=newStoryNo;
+                    stories = [];
+                    initialStoriesSet = false;
+                    io.emit('STORY_CREATED');
+                })
+            });
+    });
+
     socket.on('DUPLICATE_STORY', function (data) {
 
-        let patient=data.patient;
-        let title=data.title;
+        let patient = data.patient;
+        let title = data.title;
         //console.log('data passed' + data.patient);
 
         var newStoryNo = 0;
@@ -221,11 +250,12 @@ io.on('connection', (socket) => {
                                     if (err) throw err
                                 })
                             })
+                        stories = [];
+                        initialStoriesSet = false;
+                        io.emit('STORY_DUPLICATED');
                     })
                 })
         })
-        stories=[];
-        initialStoriesSet=false;
     })
 
     socket.on('GET_STORY', function (data) {
@@ -235,8 +265,8 @@ io.on('connection', (socket) => {
         let query = 'SELECT * FROM story WHERE idStory=?';
         db.query(query, chosenStory, function (err, rows) {
             if (err) throw err;
-            if (rows.length === 0 || rows.length > 1) {
-                console.log('error');
+            if (rows.length === 0) {
+                console.log('no story');
             } else {
                 var row = rows[0];
                 story.id = row.idStory;
@@ -251,7 +281,7 @@ io.on('connection', (socket) => {
         db.query(query, chosenStory, function (err, rows) {
             if (err) throw err;
             if (rows.length === 0) {
-                console.log('error');
+                console.log('no pages yet');
             } else {
                 for (let i = 0; i < rows.length; i++) {
                     let row = rows[i];
@@ -266,20 +296,24 @@ io.on('connection', (socket) => {
                     page.isWorrying = row.isWorrying;
                     pages.push(page);
                 }
-                io.emit('INITIAL_STORY_STATE', story, pages);
             }
+        }).on('end', function(){
+            io.emit('INITIAL_STORY_STATE', story, pages);
         });
     });
 
     socket.on('tryLoggingIn', function (data) {
+        let email=data.email;
         var query = 'SELECT * FROM user where email = ? and password = ?';
         db.query(query, [data.email, data.password], function (err, rows, fields) {
             if (err) throw err;
             if (rows.length === 0) {
-                socket.emit('login', {message: false, session: ''});
+                //socket.emit('login', {message: false, session: ''});
             } else {
                 //socket.set('session', data.userLogin);
-                socket.emit('login', {message: true, session: session});
+               // socket.emit('login', {message: true, session: session});
+                loggedIn=true;
+                username=email;
             }
         });
     });

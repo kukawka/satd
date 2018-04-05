@@ -39,6 +39,7 @@ export default class StoryLibrary extends Component {
         this.duplicateAStory = this.duplicateAStory.bind(this);
         this.confirmDuplicate = this.confirmDuplicate.bind(this);
         this.handleClosePortal = this.handleClosePortal.bind(this);
+        this.refreshLib=this.refreshLib.bind(this);
         this.socket = io('localhost:8080');
     }
 
@@ -75,17 +76,24 @@ export default class StoryLibrary extends Component {
             title: this.state.duplicateTitle
         });
 
+       //wait until the server responds!!!
+        this.socket.on('STORY_DUPLICATED', function () {
+            this.refreshLib();
+        }.bind(this));
+
         this.setState({
             showDuplicatePortal: false,
             toDuplicate: 0,
             duplicatePatient:'',
             duplicateTitle:''
         });
+    }
 
-        //refresh the library
+    refreshLib(){
         this.socket.emit('GET_ALL_STORIES');
 
         this.socket.on('INITIAL_STORIES', function (data) {
+            //alert(data.length); --debugging
             this.setState({
                 stories: data,
                 initialStoriesSet: data

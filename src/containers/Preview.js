@@ -31,20 +31,36 @@ function SamplePrevArrow(props) {
 
 export default class Preview extends Component {
     render() {
+        //alert(this.props.pages);
         const settings = {
             dots: true,
             infinite: true,
-            slidesToShow: 4,
+            slidesToShow: 3,
             slidesToScroll: 1,
             nextArrow: <SampleNextArrow/>,
             prevArrow: <SamplePrevArrow/>
         };
 
+        const imgStyle = {
+            maxHeight: 250,
+            maxWidth:330,
+            height:"auto",
+            width: "auto"
+        };
+
         const pages = this.props.pages
             .sort((a,b) => a.id - b.id)
             .map((page) =>
+                <div className="card">
+                    <div className="card-header d-flex justify-content-center">
                     <img src={require('../images/' + page.imageTitle + '.png')} alt="No image assigned yet."
-                         className="card-img-top"/>
+                         className="card-img-top" style={imgStyle}/>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{
+                            page.text.length>80 ? [page.text.substring(0,70), "..."] : page.text}</p>
+                    </div>
+                </div>
             );
 
         return (
