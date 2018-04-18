@@ -65,7 +65,6 @@ export default class Home extends Component {
 
         this.socket.on('STORY_CREATED', function (data)
         {
-            alert(data);
             this.setState({
                 redirectedToEditor: true,
                 newTitle:'',
@@ -140,7 +139,7 @@ export default class Home extends Component {
                         <div class="form-group">
                             <label for="exampleInputPassword1">Patient</label>
                             <input type="text" class="form-control" onChange={this.updateInput} value={this.state.newPatient} name="newPatient"
-                                   placeholder="Enter patient"/>
+                                   placeholder="Enter patient" disabled={true}/>
                         </div>
                     </form>
                 </Portal>

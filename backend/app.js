@@ -39,9 +39,11 @@ var stories = [];
 var pages = [];
 var images = [];
 var todos = [];
+var patients = [];
 var initialDataSet = false;
 var initialStoriesSet = false;
 var initialLibraries = false;
+var patientsSet = false;
 var loggedIn = true;
 var username = '';
 var chosenStory = 0;
@@ -212,6 +214,24 @@ io.on('connection', (socket) => {
         }
         else {
             io.emit('INITIAL_LIBRARIES', pages, images);
+        }
+    });
+
+    socket.on('GET_PATIENTS', function(){
+        if (!patientsSet) {
+            db.query('SELECT * FROM patient')
+                .on('result', function (data) {
+                    // Push results onto the notes array
+                    patients.push(data)
+                })
+                .on('end', function () {
+
+                            io.emit('ALL_PATIENTS', patients);
+                })
+            patientsSet = true;
+        }
+        else {
+            io.emit('ALL_PATIENTS', patients);
         }
     });
 
