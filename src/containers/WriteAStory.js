@@ -522,6 +522,10 @@ export default class StoryEditor extends Component {
             marginTop: 10
         };
 
+        var marginLeft = {
+            marginLeft: 5
+        };
+
         var librariesWell = {
             overflowX: "scroll",
             height: 280
@@ -827,17 +831,16 @@ export default class StoryEditor extends Component {
                                 <form class="form-inline">
                                     <div class="form-group mb-4">
                                         <label for="staticEmail2">Title   </label>
-                                        <input type="text" class="form-control" id="staticEmail2" name="title" value={this.state.story.title}/>
+                                        <input type="text" style={marginLeft} class="form-control" id="staticEmail2" name="title" value={this.state.story.title}/>
                                     </div>
                                     <div class="form-group mx-sm-3 mb-4">
                                         <label for="inputPassword2">Patient   </label>
-                                        <input type="text" class="form-control" value={this.state.story.patient} name="patient" placeholder="Password"/>
+                                        <input type="text" style={marginLeft} class="form-control" value={this.state.story.patient} name="patient" />
                                     </div>
                                 </form>
                             </Col>
                             <Col xs={12} md={4}>
-                                <div className="d-flex justify-content-between">
-                                    <button type="button" class="btn btn-warning"><Glyphicon glyph="charts"/> View TODA</button>
+                                <div className="d-flex justify-content-end">
                                 <button class="btn btn-primary" onClick={this.confirmFinish} block><Glyphicon
                                     glyph="save"/> Finish Story</button>
                                 </div>
