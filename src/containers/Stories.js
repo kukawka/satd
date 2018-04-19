@@ -185,6 +185,7 @@ export default class StoryLibrary extends Component {
             //alert(data);
             this.setState({
                 showNewStoryPortal:false,
+                redirected:true,
                 newTitle:'',
                 newPatient:1,
             });

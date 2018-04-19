@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
         io.emit('INITIAL_NOTES', notes)
     }
 
-    socket.on('CHECKED_IF_LOGGED_IN', function(){
+    socket.on('CHECKED_IF_LOGGED_IN', function () {
         io.emit('LOGGED_IN_OR_NOT', loggedIn, username);
     });
 
@@ -85,7 +85,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('GET_TODOS', function () {
-        todos=[];
+        todos = [];
         db.query('SELECT * from todo where completed=false;')
             .on('result', function (data) {
                 // Push results onto the notes array
@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
         db.query(updateQuery, [data.pageTitle, data.pageText, data.pageImageTitle, data.pageNotes, false, data.pageDBID], function (err) {
             if (err) throw err;
             else {
-                console.log(data.pageTitle+data.pageText+ data.pageImageTitle+ data.pageNotes +data.pageDBID);
+                console.log(data.pageTitle + data.pageText + data.pageImageTitle + data.pageNotes + data.pageDBID);
                 console.log('success');
             }
         });
@@ -217,7 +217,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('GET_PATIENTS', function(){
+    socket.on('GET_PATIENTS', function () {
         if (!patientsSet) {
             db.query('SELECT * FROM patient')
                 .on('result', function (data) {
@@ -226,7 +226,7 @@ io.on('connection', (socket) => {
                 })
                 .on('end', function () {
 
-                            io.emit('ALL_PATIENTS', patients);
+                    io.emit('ALL_PATIENTS', patients);
                 })
             patientsSet = true;
         }
@@ -249,115 +249,148 @@ io.on('connection', (socket) => {
                 db.query(addStoryQuery, [newStoryNo, title, patient], function (err) {
                     if (err) throw err
                 }).on('end', function () {
-                    chosenStory=newStoryNo;
-                    console.log(chosenStory);
-                    stories = [];
-                    initialStoriesSet = false;
-                    io.emit('STORY_CREATED', chosenStory);
-                })
+                    chosenStory = newStoryNo;
+                    //console.log(chosenStory);
+                    //update temp_table set pageNo=7 where pageNo=10  ;
+                    let tempTablequery = 'CREATE TEMPORARY TABLE temp_table SELECT title, text, imageTitle, isWorrying, notes, pageNo from page where idpage>=1 and idpage<=5 or idpage=7 or idpage=10;';
+                    db.query(tempTablequery, function (err) {
+                        if (err) throw err
+                    }).on('end', function () {
+                        tempTablequery = 'update temp_table set pageNo=6 where pageNo=7  ;';
+                        db.query(tempTablequery, function (err) {
+                            if (err) throw err
+                        }).on('end', function () {
+                            tempTablequery = 'update temp_table set pageNo=7 where pageNo=10  ;';
+                            db.query(tempTablequery, function (err) {
+                                if (err) throw err
+                            }).on('end', function () {
+                                tempTablequery = 'ALTER TABLE temp_table ADD storyNo int(10) default ?';
+                                db.query(tempTablequery, newStoryNo, function (err) {
+                                    if (err) throw err
+                                }).on('end', function () {
+                                    let addPagesQuery = 'INSERT INTO page (title, text, imageTitle, isWorrying, notes, pageNo, storyNo) SELECT * from temp_table';
+                                    db.query(addPagesQuery)
+                                        .on('end', function () {
+                                            stories = [];
+                                            initialStoriesSet = false;
+                                            //console.log('finished!!!');
+                                            tempTablequery = 'drop table temp_table ;';
+                                            db.query(tempTablequery, function (err) {
+                                                if (err) throw err
+                                            }).on('end', function () {
+                                                chosenStory=newStoryNo;
+                                                io.emit('STORY_CREATED', chosenStory);
+                                            });
+                                        });
+                                });
+                            });
+                        });
+                    });
+
+                });
             });
     });
 
-    socket.on('DUPLICATE_STORY', function (data) {
+        socket.on('DUPLICATE_STORY', function (data) {
 
-        let patient = data.patient;
-        let title = data.title;
-        //console.log('data passed' + data.patient);
+            let patient = data.patient;
+            let title = data.title;
+            //console.log('data passed' + data.patient);
 
-        var newStoryNo = 0;
-        let tempTablequery = 'CREATE TEMPORARY TABLE temp_table SELECT title, text, imageTitle, isWorrying, notes, pageNo from page where storyNo=?';
-        db.query(tempTablequery, data.id, function (err) {
-            if (err) throw err
-        }).on('end', function () {
-            db.query('SELECT MAX(idStory) as no FROM story')
-                .on('result', function (data) {
-                    //console.log(data.no);
-                    newStoryNo = data.no + 1;
-                    //console.log(newStoryNo);
-                    //console.log('data passed' + data.title);
-                    tempTablequery = 'ALTER TABLE temp_table ADD storyNo int(10) default ?';
-                    db.query(tempTablequery, newStoryNo, function (err) {
-                        if (err) throw err
-                    })
+            var newStoryNo = 0;
+            let tempTablequery = 'CREATE TEMPORARY TABLE temp_table SELECT title, text, imageTitle, isWorrying, notes, pageNo from page where storyNo=?';
+            db.query(tempTablequery, data.id, function (err) {
+                if (err) throw err
+            }).on('end', function () {
+                db.query('SELECT MAX(idStory) as no FROM story')
+                    .on('result', function (data) {
+                        //console.log(data.no);
+                        newStoryNo = data.no + 1;
+                        //console.log(newStoryNo);
+                        //console.log('data passed' + data.title);
+                        tempTablequery = 'ALTER TABLE temp_table ADD storyNo int(10) default ?';
+                        db.query(tempTablequery, newStoryNo, function (err) {
+                            if (err) throw err
+                        })
 
-                    let addStoryQuery = 'INSERT INTO STORY (idStory, title, date, patient) VALUES (?, ?, NOW(), ?)';
-                    db.query(addStoryQuery, [newStoryNo, title, patient], function (err) {
-                        if (err) throw err
-                    }).on('end', function () {
-                        let addPagesQuery = 'INSERT INTO page (title, text, imageTitle, isWorrying, notes, pageNo, storyNo) SELECT * from temp_table';
-                        db.query(addPagesQuery)
-                            .on('end', function () {
-                                console.log('finished');
-                                tempTablequery = 'DROP TEMPORARY TABLE IF EXISTS temp_table';
-                                db.query(tempTablequery, function (err) {
-                                    if (err) throw err
+                        let addStoryQuery = 'INSERT INTO STORY (idStory, title, date, patient) VALUES (?, ?, NOW(), ?)';
+                        db.query(addStoryQuery, [newStoryNo, title, patient], function (err) {
+                            if (err) throw err
+                        }).on('end', function () {
+                            let addPagesQuery = 'INSERT INTO page (title, text, imageTitle, isWorrying, notes, pageNo, storyNo) SELECT * from temp_table';
+                            db.query(addPagesQuery)
+                                .on('end', function () {
+                                    console.log('finished');
+                                    tempTablequery = 'DROP TEMPORARY TABLE IF EXISTS temp_table';
+                                    db.query(tempTablequery, function (err) {
+                                        if (err) throw err
+                                    })
                                 })
-                            })
-                        stories = [];
-                        initialStoriesSet = false;
-                        io.emit('STORY_DUPLICATED');
+                            stories = [];
+                            initialStoriesSet = false;
+                            io.emit('STORY_DUPLICATED');
+                        })
                     })
-                })
+            })
         })
-    })
 
-    socket.on('GET_STORY', function (data) {
-        let story = {id: 0, title: '', date: '', patient: ''};
-        let pages = [];
-        console.log('getting data for..'+ chosenStory);
-        let query = 'SELECT * FROM story WHERE idStory=?';
-        db.query(query, chosenStory, function (err, rows) {
-            if (err) throw err;
-            if (rows.length === 0) {
-                console.log('no story');
-            } else {
-                var row = rows[0];
-                story.id = row.idStory;
-                story.title = row.title;
-                story.date = row.date;
-                story.patient = row.patient;
-                //io.emit('INITIAL_STORY_STATE', story);
-            }
-        });
-
-        query = 'SELECT * FROM page WHERE storyNo=?';
-        db.query(query, chosenStory, function (err, rows) {
-            if (err) throw err;
-            if (rows.length === 0) {
-                console.log('no pages yet');
-            } else {
-                for (let i = 0; i < rows.length; i++) {
-                    let row = rows[i];
-
-                    let page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
-                    page.id = row.pageNo;
-                    page.dbid = row.idpage;
-                    page.title = row.title;
-                    page.text = row.text;
-                    page.imageTitle = row.imageTitle;
-                    page.notes = row.notes;
-                    page.isWorrying = row.isWorrying;
-                    pages.push(page);
+        socket.on('GET_STORY', function (data) {
+            let story = {id: 0, title: '', date: '', patient: ''};
+            let pages = [];
+            console.log('getting data for..' + chosenStory);
+            let query = 'SELECT * FROM story WHERE idStory=?';
+            db.query(query, chosenStory, function (err, rows) {
+                if (err) throw err;
+                if (rows.length === 0) {
+                    console.log('no story');
+                } else {
+                    var row = rows[0];
+                    story.id = row.idStory;
+                    story.title = row.title;
+                    story.date = row.date;
+                    story.patient = row.patient;
+                    //io.emit('INITIAL_STORY_STATE', story);
                 }
-            }
-        }).on('end', function(){
-            io.emit('INITIAL_STORY_STATE', story, pages);
-        });
-    });
+            });
 
-    socket.on('tryLoggingIn', function (data) {
-        let email=data.email;
-        var query = 'SELECT * FROM user where email = ? and password = ?';
-        db.query(query, [data.email, data.password], function (err, rows, fields) {
-            if (err) throw err;
-            if (rows.length === 0) {
-                //socket.emit('login', {message: false, session: ''});
-            } else {
-                //socket.set('session', data.userLogin);
-               // socket.emit('login', {message: true, session: session});
-                loggedIn=true;
-                username=email;
-            }
+            query = 'SELECT * FROM page WHERE storyNo=?';
+            db.query(query, chosenStory, function (err, rows) {
+                if (err) throw err;
+                if (rows.length === 0) {
+                    console.log('no pages yet');
+                } else {
+                    for (let i = 0; i < rows.length; i++) {
+                        let row = rows[i];
+
+                        let page = {id: 0, title: '', text: '', imageTitle: '', isWorrying: false};
+                        page.id = row.pageNo;
+                        page.dbid = row.idpage;
+                        page.title = row.title;
+                        page.text = row.text;
+                        page.imageTitle = row.imageTitle;
+                        page.notes = row.notes;
+                        page.isWorrying = row.isWorrying;
+                        pages.push(page);
+                    }
+                }
+            }).on('end', function () {
+                io.emit('INITIAL_STORY_STATE', story, pages);
+            });
+        });
+
+        socket.on('tryLoggingIn', function (data) {
+            let email = data.email;
+            var query = 'SELECT * FROM user where email = ? and password = ?';
+            db.query(query, [data.email, data.password], function (err, rows, fields) {
+                if (err) throw err;
+                if (rows.length === 0) {
+                    //socket.emit('login', {message: false, session: ''});
+                } else {
+                    //socket.set('session', data.userLogin);
+                    // socket.emit('login', {message: true, session: session});
+                    loggedIn = true;
+                    username = email;
+                }
+            });
         });
     });
-});
