@@ -22,10 +22,10 @@ export default class ExistingPageThumbnail extends React.Component {
                 <div className="card-body">
                 <p className="card-title">{this.props.page.title}</p>
                     <div className="card-text d-flex justify-content-center">
-                        <button className="btn btn-success" role="button" data-id={this.props.page.id}
+                        <button className="btn btn-outline-success" role="button" data-id={this.props.page.id}
                                 onClick={this.props.onEditClick} style={paddingRight}>
                             <Glyphicon glyph="pencil"/></button>
-                        <button className="btn btn-danger" role="button" data-id={this.props.page.id}
+                        <button className="btn btn-outline-danger" role="button" data-id={this.props.page.id}
                                 onClick={this.props.onDeleteClick} style={paddingRight}>
                             <Glyphicon glyph="bin"/></button>
                     </div>

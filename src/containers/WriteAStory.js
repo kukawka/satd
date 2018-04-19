@@ -117,7 +117,23 @@ export default class StoryEditor extends Component {
                 libraryOfImages: data2,
                 initialLibraryOfImages: data2
             });
+            var currentPage=data1[0];
+            currentPage.id=1;
+            this.setState({
+                pageText: currentPage.text,
+                pageTitle: currentPage.title,
+                pageNotes: currentPage.notes,
+                pageID: currentPage.id,
+                pageImageTitle: currentPage.imageTitle,
+                pageDBID: currentPage.dbid,
+                currentPage: currentPage,
+                currentPageID: 0
+            });
+
         }.bind(this));
+
+
+
     }
 
     reloadStory() {
@@ -376,7 +392,6 @@ export default class StoryEditor extends Component {
             page: page
         });
         this.socket.on('PAGE_ADDED', function() {
-           alert('added');
             this.reloadStory();
             this.setState({
                 currentPage: page,
@@ -487,7 +502,6 @@ export default class StoryEditor extends Component {
     }
 
     render() {
-        //alert(this.state.storyno);
         var charactersLeft = 100 - this.state.pageText.length;
 
         //styles
@@ -541,6 +555,20 @@ export default class StoryEditor extends Component {
             maxWidth: 300,
             maxHeight: 300
         };
+
+        /*                            <div>
+                                <form class="form-inline">
+                                    <div class="form-group mb-4">
+                                        <label for="staticEmail2">Title   </label>
+                                        <input type="text" style={marginLeft} class="form-control" id="staticEmail2" name="title" value={this.state.story.title}/>
+                                    </div>
+                                    <div class="form-group mx-sm-3 mb-4">
+                                        <label for="inputPassword2">Patient   </label>
+                                        <select class="form-control" style={marginLeft} id="exampleFormControlSelect1" disabled={true}>
+                                            <option>{this.state.story.patient}</option>
+                                        </select>
+                                    </div>
+                                </form>*/
 
         const librariesNav = (
             <ul className="nav nav-tabs" style={marginAtTop}>
@@ -615,7 +643,7 @@ export default class StoryEditor extends Component {
 
         var addPageButton = (
             <div className="d-flex justify-content-center">
-                <button type="button" class="btn btn-success" onClick={this.addNewPage}><Glyphicon glyph="add"/> Add
+                <button type="button" class="btn btn-outline-success" onClick={this.addNewPage}><Glyphicon glyph="add"/> Add
                     a page
                 </button>
             </div>
@@ -625,9 +653,12 @@ export default class StoryEditor extends Component {
             <div className="card">
                 <div className="card-header d-flex justify-content-between">
                     <h5 class="card-title">Page Editor</h5>
-                    {this.state.currentPage != null ? [
-                        <p><Glyphicon glyph="save"> Any changes are saved automatically</Glyphicon></p>
-                    ] : []}
+                    {this.state.currentPage != null ?
+                        <div className="d-flex justify-content-center">
+                            <button type="button" class="btn btn-outline-success" onClick={this.addNewPage}><Glyphicon glyph="add"/> Add
+                                a page
+                            </button>
+                        </div> : []}
                 </div>
                 <div className="card-body" style={pageEditorStyle}>
                     {this.state.currentPage != null ? [
@@ -745,9 +776,17 @@ export default class StoryEditor extends Component {
             return <Redirect to='/stories'/>;
         }
         //
-        return (
-
+        return ([
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/stories">Library</a></li>
+                    <li class="breadcrumb-item disabled" aria-current="page">{this.state.story.patient}</li>
+                    <li class="breadcrumb-item active" aria-current="page">{this.state.story.title}</li>
+                </ol>
+            </nav>,
             <Container>
+
                 <FullScreenPortal
                     open={this.state.showPreviewPortal}
                     onClose={this.handleClosePortal}
@@ -824,39 +863,15 @@ export default class StoryEditor extends Component {
                 >
                     {pageInspector}
                 </Portal>
-                <div class="card">
-                    <div class="card-body">
-                        <div className="row">
-                            <Col xs={12} md={8}>
-                                <form class="form-inline">
-                                    <div class="form-group mb-4">
-                                        <label for="staticEmail2">Title   </label>
-                                        <input type="text" style={marginLeft} class="form-control" id="staticEmail2" name="title" value={this.state.story.title}/>
-                                    </div>
-                                    <div class="form-group mx-sm-3 mb-4">
-                                        <label for="inputPassword2">Patient   </label>
-                                        <input type="text" style={marginLeft} class="form-control" value={this.state.story.patient} name="patient" />
-                                    </div>
-                                </form>
-                            </Col>
-                            <Col xs={12} md={4}>
-                                <div className="d-flex justify-content-end">
-                                <button class="btn btn-primary" onClick={this.confirmFinish} block><Glyphicon
-                                    glyph="save"/> Finish Story</button>
-                                </div>
-                            </Col>
-                        </div>
-                    </div>
-                </div>
                 <Row>
                     <Col xs={12} md={3}>
                         <div className="card">
                             <div className="card-header d-flex justify-content-between">
                                 <h5>Your Pages</h5>
-                                <button className="btn btn-large btn-info" onClick={this.showPreview}><Glyphicon
-                                    glyph="play"/> Overview
+                                <button className="btn btn-large btn-outline-danger" onClick={this.showPreview}><Glyphicon
+                                    glyph="play"/> Preview
                                 </button>
-                            </div>
+                                </div>
                             <div id="pagesTab" className="card-body" style={scrolling}>
                                 {existingPages}
                             </div>
@@ -880,6 +895,6 @@ export default class StoryEditor extends Component {
                     </Col>
                 </Row>
             </Container>
-        );
+        ]);
     }
 }

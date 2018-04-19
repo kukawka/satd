@@ -23,11 +23,11 @@ export default class LibraryPageThumbnail extends React.Component {
                 <div className="card-body">
                    {this.props.page.title}
                     <div class="d-flex justify-content-center">
-                            <button className="btn btn-info" role="button" data-id={this.props.id}
+                            <button className="btn btn-outline-info" role="button" data-id={this.props.id}
                                     onClick={this.props.onViewClick} style={paddingRight}>
                                 <Glyphicon glyph="view"/></button>
                             <button onClick={this.props.onAddClick}
-                                    className="btn btn-success"
+                                    className="btn btn-outline-success"
                                     role="button" data-id={this.props.id}>
                                 <Glyphicon glyph="add"/></button>
                 </div>
