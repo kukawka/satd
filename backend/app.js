@@ -44,7 +44,7 @@ var initialDataSet = false;
 var initialStoriesSet = false;
 var initialLibraries = false;
 var patientsSet = false;
-var loggedIn = true;
+var loggedIn = false;
 var username = '';
 var chosenStory = 0;
 
@@ -379,18 +379,24 @@ io.on('connection', (socket) => {
         });
 
         socket.on('tryLoggingIn', function (data) {
-            let email = data.email;
+            //let email = data.email;
+            console.log(data.email+' '+data.password);
             var query = 'SELECT * FROM user where email = ? and password = ?';
-            db.query(query, [data.email, data.password], function (err, rows, fields) {
+            db.query(query, [data.email, data.password], function (err, rows) {
                 if (err) throw err;
                 if (rows.length === 0) {
-                    //socket.emit('login', {message: false, session: ''});
+                    socket.emit('login', {message: false, session: ''});
                 } else {
                     //socket.set('session', data.userLogin);
-                    // socket.emit('login', {message: true, session: session});
+                    socket.emit('login', {message: true, session: session});
                     loggedIn = true;
-                    username = email;
+                    username = rows[0].firstname+' '+rows[0].lastname;
                 }
             });
         });
+
+    socket.on('logOut', function () {
+        loggedIn=false;
+        username='';
+    })
     });

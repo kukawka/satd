@@ -22,7 +22,7 @@ class App extends Component {
         };
         this.socket = io('localhost:8080');
     }
-   /*
+
     componentDidMount() {
         this.socket.emit('CHECKED_IF_LOGGED_IN');
 
@@ -33,7 +33,6 @@ class App extends Component {
             });
         }.bind(this));
     }
-    */
 
     userHasLoggedIn = logged => {
         //alert(logged);
@@ -47,6 +46,7 @@ class App extends Component {
     handleLogout = event => {
         //alert("logged out");
         this.userHasLoggedIn(false);
+        this.socket.emit('logOut');
     }
 
     render() {
