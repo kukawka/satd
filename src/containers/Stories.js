@@ -29,6 +29,7 @@ export default class StoryLibrary extends Component {
             duplicateTitle: '',
             duplicatePatient: 0,
             newTitle: '',
+            invalidTitle:false,
             newPatient: 1,
             showDuplicatePortal: false,
             showNewStoryPortal: false
@@ -88,25 +89,33 @@ export default class StoryLibrary extends Component {
     }
 
     duplicateAStory() {
-        var list=this.state.patients;
-        var temp=list[this.state.duplicatePatient-1].firstname+" "+list[this.state.duplicatePatient-1].lastname;
-        this.socket.emit('DUPLICATE_STORY', {
-            id: this.state.toDuplicate,
-            patient: temp,
-            title: this.state.duplicateTitle
-        });
+        if(this.state.duplicateTitle.length>=5) {
+            var list = this.state.patients;
+            var temp = list[this.state.duplicatePatient - 1].firstname + " " + list[this.state.duplicatePatient - 1].lastname;
+            this.socket.emit('DUPLICATE_STORY', {
+                id: this.state.toDuplicate,
+                patient: temp,
+                title: this.state.duplicateTitle
+            });
 
-        //wait until the server responds!!!
-        this.socket.on('STORY_DUPLICATED', function () {
-            this.refreshLib();
-        }.bind(this));
+            //wait until the server responds!!!
+            this.socket.on('STORY_DUPLICATED', function () {
+                this.refreshLib();
+            }.bind(this));
 
-        this.setState({
-            showDuplicatePortal: false,
-            toDuplicate: 0,
-            duplicatePatient: 0,
-            duplicateTitle: ''
-        });
+            this.setState({
+                showDuplicatePortal: false,
+                toDuplicate: 0,
+                duplicatePatient: 0,
+                duplicateTitle: '',
+                invalidTitle:false
+            });
+        }
+        else{
+            this.setState({
+                invalidTitle: true
+            });
+        }
     }
 
     refreshLib() {
@@ -127,7 +136,9 @@ export default class StoryLibrary extends Component {
             toDuplicate: 0,
             showNewStoryPortal: false,
             newTitle: '',
-            newPatient: 0
+            newPatient: 0,
+            duplicateTitle:'',
+            invalidTitle:false
         });
     }
 
@@ -173,26 +184,33 @@ export default class StoryLibrary extends Component {
     }
 
     createAStory(){
-        var list=this.state.patients;
-        var temp=list[this.state.newPatient-1].firstname+" "+list[this.state.newPatient-1].lastname;
-        this.socket.emit('NEW_STORY', {
-            patient: temp,
-            title: this.state.newTitle
-        });
-
-        this.socket.on('STORY_CREATED', function (data)
-        {
-            //alert(data);
-            this.setState({
-                showNewStoryPortal:false,
-                redirected:true,
-                newTitle:'',
-                newPatient:1,
+        if(this.state.newTitle.length>=5) {
+            var list = this.state.patients;
+            var temp = list[this.state.newPatient - 1].firstname + " " + list[this.state.newPatient - 1].lastname;
+            this.socket.emit('NEW_STORY', {
+                patient: temp,
+                title: this.state.newTitle
             });
 
-            this.refreshLib();
+            this.socket.on('STORY_CREATED', function (data) {
+                //alert(data);
+                this.setState({
+                    showNewStoryPortal: false,
+                    redirected: true,
+                    newTitle: '',
+                    newPatient: 1,
+                    invalidTitle:false
+                });
 
-        }.bind(this));
+                this.refreshLib();
+
+            }.bind(this));
+        }
+        else{
+            this.setState({
+            invalidTitle: true
+            });
+        }
     }
 
 
@@ -227,9 +245,14 @@ export default class StoryLibrary extends Component {
                     <form>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Story Title</label>
-                            <input type="text" class="form-control" onChange={this.updateInput}
-                                   value={this.state.newTitle} name="newTitle"
-                                   aria-describedby="emailHelp" placeholder="Enter title" minLength={10}/>
+                            <input type="text"
+                                   class={this.state.invalidTitle ? "form-control is-invalid" : "form-control"}
+                                   name="newTitle" placeholder="Story Title"
+                                   value={this.state.newTitle} onChange={this.updateInput} required/>
+                            {this.state.invalidTitle &&
+                            <div className="invalid-feedback">
+                                The title needs to be at least 5 characters long.
+                            </div>}
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Patient</label>
@@ -251,9 +274,14 @@ export default class StoryLibrary extends Component {
                     <form>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Story Title</label>
-                            <input type="text" class="form-control" onChange={this.updateInput}
-                                   value={this.state.duplicateTitle} name="duplicateTitle"
-                                   aria-describedby="emailHelp" placeholder="Enter title"/>
+                            <input type="text"
+                                   class={this.state.invalidTitle ? "form-control is-invalid" : "form-control"}
+                                   name="duplicateTitle" placeholder="Story Title"
+                                   value={this.state.duplicateTitle} onChange={this.updateInput} required/>
+                            {this.state.invalidTitle &&
+                            <div className="invalid-feedback">
+                                The title needs to be at least 5 characters long.
+                            </div>}
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Patient</label>

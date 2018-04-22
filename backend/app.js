@@ -44,7 +44,7 @@ var initialDataSet = false;
 var initialStoriesSet = false;
 var initialLibraries = false;
 var patientsSet = false;
-var loggedIn = false;
+var loggedIn = true;
 var username = '';
 var chosenStory = 0;
 

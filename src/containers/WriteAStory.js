@@ -786,7 +786,6 @@ export default class StoryEditor extends Component {
                 </ol>
             </nav>,
             <Container>
-
                 <FullScreenPortal
                     open={this.state.showPreviewPortal}
                     onClose={this.handleClosePortal}
