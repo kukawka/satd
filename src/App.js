@@ -73,7 +73,8 @@ class App extends Component {
                         <ul className="navbar-nav mr-auto">
                             {this.state.isLoggedIn ? [
                                     <RouteNavItem href="/" name="Home">Home</RouteNavItem>,
-                                        <RouteNavItem className="dropdown-item" href="/stories" name="Library">Stories</RouteNavItem>
+                                        <RouteNavItem className="dropdown-item" href="/stories" name="Library">Stories</RouteNavItem>,
+                                        <RouteNavItem className="dropdown-item" href="/writeastory" name="Story Editor">Story Editor</RouteNavItem>
 
                                 ]
                                 :[]}

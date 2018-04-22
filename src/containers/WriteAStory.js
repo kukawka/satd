@@ -52,17 +52,23 @@ export default class StoryEditor extends Component {
             showConfirmDeletePortal: false,
             showConfirmFinishPortal: false,
             showPreviewPortal: false,
+            showNewPagePortal:false,
+            showPageAddedPortal:false,
 
             pageToAddTo: 1,
             imageToAdd: null,
             pageToDelete: 0,
+            pageToAddToTitle:'',
 
             pageText: '',
             pageTitle: '',
             pageNotes: '',
             pageID: 0,
             pageImageTitle: '',
-            pageDBID: 0
+            pageDBID: 0,
+
+            newTitle:'',
+            invalidTitle:false
 
         };
 
@@ -94,6 +100,8 @@ export default class StoryEditor extends Component {
         this.updateInput = this.updateInput.bind(this);
         this.updateTitle = this.updateTitle.bind(this);
         this.sendToDB=this.sendToDB.bind(this);
+
+        this.showAddNewPage=this.showAddNewPage.bind(this);
     }
 
     componentDidMount() {
@@ -197,8 +205,8 @@ export default class StoryEditor extends Component {
         let pageID = this.state.pageToAddTo;
         let pageDBID = allPages[pageID - 1].dbid;
         this.setState({
-            pageToAddTo: 1,
-            imageToAdd: null,
+            pageToAddToTitle: allPages[pageID - 1].title,
+            showImageAddedPortal:true,
             showAddImagePortal: !this.state.showAddImagePortal
         });
 
@@ -228,7 +236,10 @@ export default class StoryEditor extends Component {
             showInspectPagePortal: false,
             showConfirmDeletePortal: false,
             showConfirmFinishPortal: false,
-            showPreviewPortal: false
+            showPreviewPortal: false,
+            showNewPagePortal:false,
+            showPageAddedPortal:false,
+            showImageAddedPortal: false
         });
     }
 
@@ -400,25 +411,40 @@ export default class StoryEditor extends Component {
                 pageText: page.text,
                 pageImageTitle: page.imageTitle,
                 pageDBID: page.dbid,
-                pageID: page.id
+                pageID: page.id,
+                showPageAddedPortal:true
             });
         }.bind(this));
+    }
 
-       /* this.setState({
-            currentPage: page
-        });*/
+    showAddNewPage(){
+        //alert('heeere');
+        this.setState({
+            showNewPagePortal:true
+        });
     }
 
     addNewPage() {
-        var blankPage = {
-            id: (this.state.pages.length + 1),
-            title: 'New Page',
-            text: 'Add text',
-            notes: 'No notes yet',
-            imageTitle: 'placeholder',
-            isWorrying: false
-        };
-        this.addAPageToDB(blankPage);
+        if(this.state.newTitle.length>=5) {
+            var blankPage = {
+                id: (this.state.pages.length + 1),
+                title:this.state.newTitle ,
+                text: 'Add text',
+                notes: 'No notes yet',
+                imageTitle: 'placeholder',
+                isWorrying: false
+            };
+            this.setState({
+                invalidTitle: false,
+                newTitle:'',
+                showNewPagePortal:false
+            });
+            this.addAPageToDB(blankPage);
+        } else{
+            this.setState({
+                invalidTitle: true
+            });
+        }
     }
 
     addTemplatePage(e) {
@@ -465,15 +491,6 @@ export default class StoryEditor extends Component {
         this.setState({
             [e.target.name]: e.target.value
         });
-
-       /* this.socket.emit('UPDATE_PAGE', {
-            pageText: this.state.pageText,
-            pageTitle: this.state.pageTitle,
-            pageNotes: this.state.pageNotes,
-            pageImageTitle: this.state.pageImageTitle,
-            pageDBID: this.state.pageDBID
-        });*/
-        //this.render();
     }
 
     sendToDB(){
@@ -643,7 +660,7 @@ export default class StoryEditor extends Component {
 
         var addPageButton = (
             <div className="d-flex justify-content-center">
-                <button type="button" class="btn btn-outline-success" onClick={this.addNewPage}><Glyphicon glyph="add"/> Add
+                <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon glyph="add"/> Add
                     a page
                 </button>
             </div>
@@ -655,7 +672,7 @@ export default class StoryEditor extends Component {
                     <h5 class="card-title">Page Editor</h5>
                     {this.state.currentPage != null ?
                         <div className="d-flex justify-content-center">
-                            <button type="button" class="btn btn-outline-success" onClick={this.addNewPage}><Glyphicon glyph="add"/> Add
+                            <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon glyph="add"/> Add
                                 a page
                             </button>
                         </div> : []}
@@ -792,6 +809,52 @@ export default class StoryEditor extends Component {
                 >
                     <Preview pages={this.state.pages}/>
                 </FullScreenPortal>
+                <Portal
+                    open={this.state.showPageAddedPortal}
+                    header="Page added"
+                    onConfirm={this.handleClosePortal}
+                    onCancel={this.handleClosePortal}
+                    buttonText="CLOSE"
+                    cancelButtonText="CANCEL"
+                    cancelButton={false}
+                >
+                    <p> You added page {this.state.inspectedPage!=null ? this.state.inspectedPage.title : ""}!</p>
+                </Portal>
+                <Portal
+                    open={this.state.showImageAddedPortal}
+                    header="Image changed"
+                    onConfirm={this.handleClosePortal}
+                    onCancel={this.handleClosePortal}
+                    buttonText="CLOSE"
+                    cancelButtonText="CANCEL"
+                    cancelButton={false}
+                >
+                    <p> You added image {this.state.imageToAdd!=null ? this.state.imageToAdd.title : ""} to page {this.state.pageToAddToTitle!=null ? this.state.pageToAddToTitle : ""}!</p>
+                </Portal>
+                <Portal
+                    open={this.state.showNewPagePortal}
+                    header="Add A Page"
+                    onConfirm={this.addNewPage}
+                    onCancel={this.handleClosePortal}
+                    buttonText="ADD"
+                    cancelButtonText="CANCEL"
+                    cancelButton={true}
+                >
+                    <p>Please enter a suitable page title.</p>
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Page Title</label>
+                            <input type="text"
+                                   class={this.state.invalidTitle ? "form-control is-invalid" : "form-control"}
+                                   name="newTitle" placeholder="Page Title"
+                                   value={this.state.newTitle} onChange={this.updateInput} required/>
+                            {this.state.invalidTitle &&
+                            <div className="invalid-feedback">
+                                The title needs to be at least 5 characters long.
+                            </div>}
+                        </div>
+                    </form>
+                </Portal>
                 <Portal
                     open={this.state.showConfirmFinishPortal}
                     header="Confirm Finish"
