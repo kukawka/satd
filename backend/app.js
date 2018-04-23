@@ -35,6 +35,7 @@ db.connect(function (err) {
 var notes = [];
 var stories = [];
 var pages = [];
+var pagesByPatient=[];
 var images = [];
 var todos = [];
 var patients = [];
@@ -197,6 +198,7 @@ io.on('connection', (socket) => {
         }
     });
 
+
     socket.on('GET_LIBRARIES', function () {
         if (!initialLibraries) {
             db.query('SELECT DISTINCT title, text, imageTitle FROM page')
@@ -212,13 +214,19 @@ io.on('connection', (socket) => {
                             images.push(data)
                         })
                         .on('end', function () {
-                            io.emit('INITIAL_LIBRARIES', pages, images);
+                            db.query('SELECT DISTINCT page.title, page.text, page.imageTitle, story.patient as p FROM page join story on page.storyNo = story.idStory')
+                                .on('result', function (data) {
+                                    pagesByPatient.push(data);
+                                    console.log(pagesByPatient.length);
+                                }).on('end', function () {
+                                io.emit('INITIAL_LIBRARIES', pages, images, pagesByPatient);
+                            });
                         })
                 })
             initialLibraries = true;
         }
         else {
-            io.emit('INITIAL_LIBRARIES', pages, images);
+            io.emit('INITIAL_LIBRARIES', pages, images, pagesByPatient);
         }
     });
 

@@ -30,10 +30,12 @@ export default class StoryEditor extends Component {
             pages: [],
             libraryOfImages: [],
             libraryOfPages: [],
+            pagesForPatient: [],
+            inititalPagesForPatient: [],
             initialLibraryOfPages: [],
             initialLibraryOfImages: [],
             finished: false,
-            needToReload:false,
+            needToReload: false,
 
             currentPage: null,
             currentPageID: 0,
@@ -52,13 +54,13 @@ export default class StoryEditor extends Component {
             showConfirmDeletePortal: false,
             showConfirmFinishPortal: false,
             showPreviewPortal: false,
-            showNewPagePortal:false,
-            showPageAddedPortal:false,
+            showNewPagePortal: false,
+            showPageAddedPortal: false,
 
             pageToAddTo: 1,
             imageToAdd: null,
             pageToDelete: 0,
-            pageToAddToTitle:'',
+            pageToAddToTitle: '',
 
             pageText: '',
             pageTitle: '',
@@ -67,8 +69,8 @@ export default class StoryEditor extends Component {
             pageImageTitle: '',
             pageDBID: 0,
 
-            newTitle:'',
-            invalidTitle:false
+            newTitle: '',
+            invalidTitle: false
 
         };
 
@@ -99,9 +101,11 @@ export default class StoryEditor extends Component {
         //this.componentDidMount=this.componentDidMount.bind(this);
         this.updateInput = this.updateInput.bind(this);
         this.updateTitle = this.updateTitle.bind(this);
-        this.sendToDB=this.sendToDB.bind(this);
+        this.sendToDB = this.sendToDB.bind(this);
 
-        this.showAddNewPage=this.showAddNewPage.bind(this);
+        this.showAddNewPage = this.showAddNewPage.bind(this);
+
+        this.filterByPatient=this.filterByPatient.bind(this);
     }
 
     componentDidMount() {
@@ -114,19 +118,24 @@ export default class StoryEditor extends Component {
                 story: data1,
                 pages: data2
             });
+
         }.bind(this));
 
         this.socket.emit('GET_LIBRARIES');
 
-        this.socket.on('INITIAL_LIBRARIES', function (data1, data2) {
+        this.socket.on('INITIAL_LIBRARIES', function (data1, data2, data3) {
             this.setState({
                 libraryOfPages: data1,
                 initialLibraryOfPages: data1,
                 libraryOfImages: data2,
-                initialLibraryOfImages: data2
+                initialLibraryOfImages: data2,
+                pagesForPatient: data3,
+                inititalPagesForPatient: data3
             });
-            var currentPage=data1[0];
-            currentPage.id=1;
+
+
+            var currentPage = data1[0];
+            currentPage.id = 1;
             this.setState({
                 pageText: currentPage.text,
                 pageTitle: currentPage.title,
@@ -139,7 +148,6 @@ export default class StoryEditor extends Component {
             });
 
         }.bind(this));
-
 
 
     }
@@ -206,7 +214,7 @@ export default class StoryEditor extends Component {
         let pageDBID = allPages[pageID - 1].dbid;
         this.setState({
             pageToAddToTitle: allPages[pageID - 1].title,
-            showImageAddedPortal:true,
+            showImageAddedPortal: true,
             showAddImagePortal: !this.state.showAddImagePortal
         });
 
@@ -237,8 +245,8 @@ export default class StoryEditor extends Component {
             showConfirmDeletePortal: false,
             showConfirmFinishPortal: false,
             showPreviewPortal: false,
-            showNewPagePortal:false,
-            showPageAddedPortal:false,
+            showNewPagePortal: false,
+            showPageAddedPortal: false,
             showImageAddedPortal: false
         });
     }
@@ -287,6 +295,26 @@ export default class StoryEditor extends Component {
         });
     }
 
+    filterByPatient(e){
+        if(e.currentTarget.value==2) {
+            var temp=this.state.pagesForPatient;
+            temp = temp.filter(function (item) {
+                return item.p.search(
+                    this.state.story.patient) !== -1
+            }.bind(this));
+
+            this.setState({
+                libraryOfPages: temp
+            });
+        }
+        else{
+            var temp=this.getInitialState();
+            this.setState({
+                libraryOfPages:temp
+            });
+        }
+    }
+
     handleClear() {
         this.setState({
             searchedPage: ''
@@ -298,19 +326,19 @@ export default class StoryEditor extends Component {
             });
     }
 
-    getPages(){
+    getPages() {
         return this.state.pages;
     }
 
     chooseToEdit(e) {
         //alert(e.currentTarget.dataset.id);
-        if(this.state.needToReload) {
+        if (this.state.needToReload) {
             this.reloadStory();
             this.setState({
                 needToReload: false
             });
         }
-        let tempPages=this.getPages();
+        let tempPages = this.getPages();
         var currentPage = tempPages[e.currentTarget.dataset.id - 1];
         //alert(currentPage.notes);
         this.setState({
@@ -402,7 +430,7 @@ export default class StoryEditor extends Component {
         this.socket.emit('ADD_TEMPLATE_PAGE', {
             page: page
         });
-        this.socket.on('PAGE_ADDED', function() {
+        this.socket.on('PAGE_ADDED', function () {
             this.reloadStory();
             this.setState({
                 currentPage: page,
@@ -412,23 +440,23 @@ export default class StoryEditor extends Component {
                 pageImageTitle: page.imageTitle,
                 pageDBID: page.dbid,
                 pageID: page.id,
-                showPageAddedPortal:true
+                showPageAddedPortal: true
             });
         }.bind(this));
     }
 
-    showAddNewPage(){
+    showAddNewPage() {
         //alert('heeere');
         this.setState({
-            showNewPagePortal:true
+            showNewPagePortal: true
         });
     }
 
     addNewPage() {
-        if(this.state.newTitle.length>=5) {
+        if (this.state.newTitle.length >= 5) {
             var blankPage = {
                 id: (this.state.pages.length + 1),
-                title:this.state.newTitle ,
+                title: this.state.newTitle,
                 text: 'Add text',
                 notes: 'No notes yet',
                 imageTitle: 'placeholder',
@@ -436,11 +464,11 @@ export default class StoryEditor extends Component {
             };
             this.setState({
                 invalidTitle: false,
-                newTitle:'',
-                showNewPagePortal:false
+                newTitle: '',
+                showNewPagePortal: false
             });
             this.addAPageToDB(blankPage);
-        } else{
+        } else {
             this.setState({
                 invalidTitle: true
             });
@@ -493,7 +521,7 @@ export default class StoryEditor extends Component {
         });
     }
 
-    sendToDB(){
+    sendToDB() {
         this.setState({
             needToReload: true
         });
@@ -611,9 +639,9 @@ export default class StoryEditor extends Component {
         let temp = this.state.libraryOfPages;
         libraryPages.push(
             <div class="d-flex justify-content-center" style={marginAtTop}>
-                <select className="form-control" disabled={true}>
-                    <option>All patients</option>
-                    <option>This patient</option>
+                <select className="form-control" disabled={false} onChange={this.filterByPatient}>
+                    <option value={1}>All patients</option>
+                    <option value={2}>This patient</option>
                 </select>
             </div>
         );
@@ -678,7 +706,8 @@ export default class StoryEditor extends Component {
 
         var addPageButton = (
             <div className="d-flex justify-content-center">
-                <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon glyph="add"/> Add
+                <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon
+                    glyph="add"/> Add
                     a page
                 </button>
             </div>
@@ -691,7 +720,8 @@ export default class StoryEditor extends Component {
                     <p><Glyphicon glyph="save"> Any changes are saved automatically</Glyphicon></p>
                     {this.state.currentPage != null ?
                         <div className="d-flex justify-content-center">
-                            <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon glyph="add"/> Add
+                            <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}>
+                                <Glyphicon glyph="add"/> Add
                                 a page
                             </button>
                         </div> : []}
@@ -717,7 +747,8 @@ export default class StoryEditor extends Component {
                                 <label class="col-sm-3 col-form-label"><strong>Page Story</strong></label>
                                 <div class="col-sm-9">
                             <textarea className="form-control" name="pageText" value={this.state.pageText}
-                                      placeholder="Text for the page.." onChange={this.updateInput} onBlur={this.sendToDB}/>
+                                      placeholder="Text for the page.." onChange={this.updateInput}
+                                      onBlur={this.sendToDB}/>
                                 </div>
                             </div>
                             <hr/>
@@ -794,7 +825,7 @@ export default class StoryEditor extends Component {
         );
 
         const previewPages = this.state.pages
-            .sort((a,b) => a.id - b.id)
+            .sort((a, b) => a.id - b.id)
             .map((page) =>
                 <div className="card">
                     <div className="card-header d-flex justify-content-center">
@@ -803,7 +834,7 @@ export default class StoryEditor extends Component {
                     </div>
                     <div class="card-body">
                         <p class="card-text">{
-                            page.text.length>80 ? [page.text.substring(0,70), "..."] : page.text}</p>
+                            page.text.length > 80 ? [page.text.substring(0, 70), "..."] : page.text}</p>
                     </div>
                 </div>
             );
@@ -837,7 +868,7 @@ export default class StoryEditor extends Component {
                     cancelButtonText="CANCEL"
                     cancelButton={false}
                 >
-                    <p> You added page {this.state.inspectedPage!=null ? this.state.inspectedPage.title : ""}!</p>
+                    <p> You added page {this.state.inspectedPage != null ? this.state.inspectedPage.title : ""}!</p>
                 </Portal>
                 <Portal
                     open={this.state.showImageAddedPortal}
@@ -848,7 +879,8 @@ export default class StoryEditor extends Component {
                     cancelButtonText="CANCEL"
                     cancelButton={false}
                 >
-                    <p> You added image {this.state.imageToAdd!=null ? this.state.imageToAdd.title : ""} to page {this.state.pageToAddToTitle!=null ? this.state.pageToAddToTitle : ""}!</p>
+                    <p> You added image {this.state.imageToAdd != null ? this.state.imageToAdd.title : ""} to
+                        page {this.state.pageToAddToTitle != null ? this.state.pageToAddToTitle : ""}!</p>
                 </Portal>
                 <Portal
                     open={this.state.showNewPagePortal}
@@ -949,10 +981,11 @@ export default class StoryEditor extends Component {
                         <div className="card">
                             <div className="card-header d-flex justify-content-between">
                                 <h5>Your Pages</h5>
-                                <button className="btn btn-large btn-outline-danger" onClick={this.showPreview}><Glyphicon
-                                    glyph="play"/> Preview
+                                <button className="btn btn-large btn-outline-danger" onClick={this.showPreview}>
+                                    <Glyphicon
+                                        glyph="play"/> Preview
                                 </button>
-                                </div>
+                            </div>
                             <div id="pagesTab" className="card-body" style={scrolling}>
                                 {existingPages}
                             </div>
