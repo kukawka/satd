@@ -1,5 +1,8 @@
 var express = require('express');
-var socket = require('socket.io');
+
+
+
+
 var mysql = require('mysql');
 var session = require('express-session');
 var app = express();
@@ -12,9 +15,7 @@ app.use(session({
     cookie: {maxAge: 60000}
 }));
 
-server = app.listen(8080, function () {
-    console.log('server is running on port 8080')
-});
+
 
 var db = mysql.createConnection({
     host: 'silva.computing.dundee.ac.uk',
@@ -31,9 +32,6 @@ db.connect(function (err) {
     }
     console.log('Connection established');
 });
-
-io = socket(server);
-
 var notes = [];
 var stories = [];
 var pages = [];
@@ -47,6 +45,13 @@ var patientsSet = false;
 var loggedIn = true;
 var username = '';
 var chosenStory = 0;
+
+var socket = require('socket.io');
+server = app.listen(8080, function () {
+    console.log('server is running on port 8080')
+});
+
+io = socket(server);
 
 io.on('connection', (socket) => {
     console.log(socket.id);

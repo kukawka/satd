@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-///import {Nav, Navbar, NavItem, NavDropdown} from "react-bootstrap";
 import "./App.css";
 import RouteNavItem from "./components/RouteNavItem";
 import NavDropdown from "./components/NavDropdown";
@@ -74,7 +73,7 @@ class App extends Component {
                             {this.state.isLoggedIn ? [
                                     <RouteNavItem href="/" name="Home">Home</RouteNavItem>,
                                         <RouteNavItem className="dropdown-item" href="/stories" name="Library">Stories</RouteNavItem>,
-                                        <RouteNavItem className="dropdown-item" href="/writeastory" name="Story Editor">Story Editor</RouteNavItem>
+                                        <RouteNavItem className="dropdown-item" href="/writeastory" name="Story Editor"></RouteNavItem>
 
                                 ]
                                 :[]}
@@ -82,9 +81,8 @@ class App extends Component {
                         <div>
                             {this.state.isLoggedIn
                                 ?
-                                    <button class="btn btn-outline-secondary" onClick={this.handleLogout} type="button">Log out</button>
+                                    <button class="btn btn-outline-light" onClick={this.handleLogout} type="button">Log out</button>
                                 : [
-                                    <button class="btn btn-outline-primary" type="button">Sign up</button>
                                 ]}
                         </div>
                     </div>

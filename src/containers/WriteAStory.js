@@ -609,6 +609,14 @@ export default class StoryEditor extends Component {
         //const libraryPages = this.state.libraryOfPages.map((page) =>
         const libraryPages = [];
         let temp = this.state.libraryOfPages;
+        libraryPages.push(
+            <div class="d-flex justify-content-center" style={marginAtTop}>
+                <select className="form-control" disabled={true}>
+                    <option>All patients</option>
+                    <option>This patient</option>
+                </select>
+            </div>
+        );
         for (var i = 1; i <= temp.length; i++) {
             let page = temp[i - 1];
             libraryPages.push(
@@ -622,6 +630,16 @@ export default class StoryEditor extends Component {
         //const libraryImages = this.state.libraryOfImages.map((image) =>
         const libraryImages = [];
         temp = this.state.libraryOfImages;
+        libraryImages.push(
+            <div class="d-flex justify-content-center" style={marginAtTop}>
+                <select className="form-control" disabled={true}>
+                    <option>My images</option>
+                    <option>Staff images</option>
+                    <option>Area images</option>
+                    <option>Everything</option>
+                </select>
+            </div>
+        );
         for (var i = 1; i <= temp.length; i++) {
             let image = temp[i - 1];
             libraryImages.push(
@@ -670,6 +688,7 @@ export default class StoryEditor extends Component {
             <div className="card">
                 <div className="card-header d-flex justify-content-between">
                     <h5 class="card-title">Page Editor</h5>
+                    <p><Glyphicon glyph="save"> Any changes are saved automatically</Glyphicon></p>
                     {this.state.currentPage != null ?
                         <div className="d-flex justify-content-center">
                             <button type="button" class="btn btn-outline-success" onClick={this.showAddNewPage}><Glyphicon glyph="add"/> Add
@@ -937,6 +956,9 @@ export default class StoryEditor extends Component {
                             <div id="pagesTab" className="card-body" style={scrolling}>
                                 {existingPages}
                             </div>
+                            <div className="card-footer d-flex justify-content-center">
+                                <p>No of pages: {this.state.pages.length}</p>
+                            </div>
                         </div>
                     </Col>
                     <Col xs={12} md={6}>
@@ -952,6 +974,9 @@ export default class StoryEditor extends Component {
                                 {librariesNav}
                                 {this.state.selectedLibItem == 1 && libraryPages}
                                 {this.state.selectedLibItem == 2 && libraryImages}
+                            </div>
+                            <div className="card-footer d-flex justify-content-center">
+                                <p>Browse libraries to add content.</p>
                             </div>
                         </div>
                     </Col>

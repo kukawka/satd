@@ -293,17 +293,7 @@ export default class StoryLibrary extends Component {
                 </Portal>
                 <Well id="toolbar">
                     <Row>
-                        <Col xs={12} md={1}>
-                            Sort by
-                        </Col>
                         <Col xs={12} md={3}>
-                            <DropdownButton
-                                bsSize="large"
-                                title="Date created"
-                                id="dropdown-size-large"
-                            >
-                                <a className="dropdown-item" href="#">Action</a>
-                            </DropdownButton>
                         </Col>
                         <Col xs={12} md={1}>
                             Search
@@ -319,8 +309,9 @@ export default class StoryLibrary extends Component {
                                   </span>
                             </div>
                         </Col>
-                        <Col xs={12} md={1}>
-                            <button type="button" class="btn btn-outline-success" onClick={this.addNewStory}>Add
+                        <Col xs={12} md={2}>
+                            <button type="button" class="btn btn-outline-success" onClick={this.addNewStory}><Glyphicon
+                                glyph="add"/> Add
                                 a Story
                             </button>
                         </Col>

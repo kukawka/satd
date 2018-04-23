@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class PageThumbnail extends React.Component {
+export default class NavItem extends React.Component {
     render() {
         return (
             <li className={this.props.active ? "nav-item active" : "nav-item" }>
